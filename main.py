@@ -32,7 +32,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = update.message.text
         print(f"Mensaje recibido de {user} en el chat {NOW_CHAT_ID}: {message}")
         
-        if 'https://www.youtube.com/' in message or'https://youtu.be/' in message or 'https://www.facebook.com/' in message:
+        if 'https://www.youtube.com/' in message or'https://youtu.be/' in message or 'https://www.facebook.com/' in message or 'https://youtube.com/' in message:
             print("Se ha detectado un enlace de YouTube")
             video_url = message
             ydl_opts = {
