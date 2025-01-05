@@ -1,4 +1,5 @@
 venv/
+temp/
 *.mp4
 .env
 test.py
