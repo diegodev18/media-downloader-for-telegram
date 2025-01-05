@@ -57,7 +57,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         await bot.send_video(NOW_CHAT_ID, video=video)
                         # await asyncio_sleep(30)
                     
-                print('Video enviado!')
+                ydl_opts_quiet = { 'quiet': True }
+                with YoutubeDL(ydl_opts_quiet) as ydl_quiet:
+                    info = ydl_quiet.extract_info(video_url, download=False, process=False, force_generic_extractor=False)
+                    
+                await bot.send_message(NOW_CHAT_ID, f"Video \"{info['title']}\" enviado!")
+                print(f'Video {info['title']} enviado!')
                     
             except Exception as e:
                 print(f"Ocurrió un error: {e}")
