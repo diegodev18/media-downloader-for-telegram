@@ -38,6 +38,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 'format': 'best',  # Descargar el mejor formato disponible
                 'merge_output_format': 'mp4',
                 'outtmpl': path.join('temp', 'output.%(ext)s'),  # Guardar con el título del video
+                'cookiefile': path.join('temp', 'cookies.txt'),
             }
             try:
                 makedirs('temp', exist_ok=True)
