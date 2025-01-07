@@ -62,14 +62,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     info = ydl_quiet.extract_info(video_url, download=False, process=False, force_generic_extractor=False)
                     
                 await bot.send_message(NOW_CHAT_ID, f"Video \"{info['title']}\" enviado!")
-                print(f'Video {info['title']} enviado!')
+                print(f"Video {info['title']} enviado!")
                     
             except Exception as e:
                 print(f"Ocurrió un error: {e}")
                 await bot.send_message(NOW_CHAT_ID, f"Ocurrió un error: {e}")
                 
             if downloaded and path.exists(vid_path):
-                print('Eliminando video...')
+                print("Eliminando video...")
                 downloaded = False
                 remove(vid_path)
                 
@@ -79,7 +79,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print("El bot se detendrá")
             
             if path.exists(vid_path):
-                print('Eliminando video...')
+                print("Eliminando video...")
                 remove(vid_path)
             
             app.stop_running()
@@ -99,5 +99,5 @@ if __name__ == '__main__':
         app.stop_running()
         
         if path.exists(vid_path):
-            print('Eliminando video...')
+            print("Eliminando video...")
             remove(vid_path)
