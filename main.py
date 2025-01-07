@@ -9,6 +9,11 @@ from time import sleep
 
 load_dotenv()
 BOT_TOKEN = environ.get("BOT_TOKEN")
+COOKIES_CONTENT = environ.get("COOKIES")
+
+with open("cookies.txt", "w") as f:
+    f.write(COOKIES_CONTENT)
+f.close()
 
 vid_path = path.join('temp', 'output.mp4')
 
