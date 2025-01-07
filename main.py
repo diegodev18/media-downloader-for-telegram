@@ -9,11 +9,10 @@ from time import sleep
 
 load_dotenv()
 BOT_TOKEN = environ.get("BOT_TOKEN")
-CHAT_ID = environ.get("CHAT_ID")
 
 vid_path = path.join('temp', 'output.mp4')
 
-if not BOT_TOKEN or not CHAT_ID:
+if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN o CHAT_ID no están configurados correctamente en el archivo .env")
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
@@ -27,7 +26,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     downloaded = False
     
     # Filtrar mensajes del chat específico
-    if str(NOW_CHAT_ID) == CHAT_ID:
+    if str(NOW_CHAT_ID):
         user = update.effective_user.first_name
         message = update.message.text
         print(f"Mensaje recibido de {user} en el chat {NOW_CHAT_ID}: {message}")
