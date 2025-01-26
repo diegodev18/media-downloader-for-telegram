@@ -40,7 +40,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print("Se ha detectado un enlace de YouTube")
             video_url = message
             ydl_opts = {
-                'format': 'bestvideo+bestaudio/best',  # Descargar el mejor formato disponible
+                'format': 'best',  # Descargar el mejor formato disponible
                 'merge_output_format': 'mp4',
                 'outtmpl': path.join('temp', 'output.%(ext)s'),  # Guardar con el título del video
                 'cookiefile': path.join('temp', 'cookies.txt'),
