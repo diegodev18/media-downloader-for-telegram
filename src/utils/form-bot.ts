@@ -1,4 +1,4 @@
-import type { Context } from "telegraf";
+import type { Context, NarrowedContext } from "telegraf";
 import { commands } from "@/consts/commands";
 import { supportNetworks } from "@/consts/support-networks";
 
@@ -26,5 +26,10 @@ ${command_list.join("\n")}`);
     ctx.reply(`\
 Aquí tienes una lista de redes sociales que tenemos soporte:
 ${supportNetworksList.join("\n")}`);
+  }
+
+  static download(ctx: any) {
+    const message = ctx.message?.text;
+    if (!message) return;
   }
 }
