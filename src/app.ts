@@ -18,7 +18,7 @@ bot.on(message('text'), async (ctx) => {
     ctx.reply(`Descargando video de Facebook...`);
   } else if (text.startsWith('https://www.youtube.com/shorts/')) {
     ctx.reply(`Descargando short de YouTube...`);
-  } else if (text.startsWith('https://youtu.be/')) {
+  } else if (text.startsWith('https://youtu.be/') || text.startsWith('https://www.youtube.com/watch?v=')) {
     ctx.reply(`Descargando video de YouTube...`);
   }
 });
