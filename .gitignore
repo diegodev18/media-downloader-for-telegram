@@ -6,3 +6,6 @@ pnpm-lock.yaml
 
 # Build output
 dist/
+
+# Env variables
+.env
