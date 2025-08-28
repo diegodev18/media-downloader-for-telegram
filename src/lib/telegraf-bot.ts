@@ -1,5 +1,7 @@
 import { Telegraf } from "telegraf";
 
+process.loadEnvFile(".env");
+
 const { BOT_TOKEN } = process.env;
 
 if (!BOT_TOKEN) {
