@@ -42,5 +42,9 @@ ${supportNetworksList.join("\n")}`);
         }
       });
     });
+
+    if (!socialNetworkToDownload) {
+      ctx.reply("No se encontró una red social compatible en el mensaje.");
+    }
   }
 }
