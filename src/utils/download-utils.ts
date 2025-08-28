@@ -12,8 +12,9 @@ export const downloadVideo = async (url: string, ctx?: any) => {
   const outputPath = `${dirName}/${Date.now()}.mp4`;
 
   const video = youtubedl(url, {
+    cookies: "cookies.txt",
     output: outputPath,
-    format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
+    format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
   });
 
   video
@@ -23,8 +24,12 @@ export const downloadVideo = async (url: string, ctx?: any) => {
       fs.rmSync(outputPath);
     })
     .catch((err) => {
-      if (ctx) ctx.reply("❌ Error al descargar: " + err);
-      console.error("❌ Error:", err);
+      if (ctx) ctx.reply("❌ Error al descargar");
+      console.error(
+        "❌ Error al descargar: ",
+        ctx.from ? `from ${ctx.from?.first_name}` : '',
+        err.message
+      );
     });
 };
 
