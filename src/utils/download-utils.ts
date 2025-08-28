@@ -45,5 +45,3 @@ const getDataLines = (info: YtResponse, outputPath: string) => {
     `   - Formato: mp4`
   ];
 }
-
-downloadVideo("https://www.youtube.com/watch?v=Z3Y82SpS0J8");
