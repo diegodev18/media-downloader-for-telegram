@@ -31,5 +31,16 @@ ${supportNetworksList.join("\n")}`);
   static download(ctx: any) {
     const message = ctx.message?.text;
     if (!message) return;
+
+    let socialNetworkToDownload: string | null = null;
+
+    supportNetworks.forEach((net) => {
+      net.urls.forEach((url) => {
+        if (message.toLowerCase().includes(url) && !socialNetworkToDownload) {
+          ctx.reply(`Descargando contenido de ${net.name}...`);
+          socialNetworkToDownload = net.id;
+        }
+      });
+    });
   }
 }
