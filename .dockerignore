@@ -1,4 +1,12 @@
+# Environment
 venv/
-temp/
+
+# Env Variables
+.env
 .env.example
+
+# Temp files & trash
+temp/
+
+# Test files
 test.py
