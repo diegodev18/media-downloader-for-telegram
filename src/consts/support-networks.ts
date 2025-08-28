@@ -1,4 +1,6 @@
-export const supportNetworks = [
+import type { SupportNetwork } from "@/types";
+
+export const supportNetworks: SupportNetwork[] = [
   {
     name: "Facebook",
     urls: [
