@@ -1,5 +1,6 @@
 import type { Context } from "telegraf";
 import { commands } from "@/consts/commands";
+import { supportNetworks } from "@/consts/support-networks";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -21,9 +22,9 @@ ${command_list.join("\n")}`);
   }
 
   static support(ctx: Context) {
+    const supportNetworksList = supportNetworks.map(network => `- ${network.name}`);
     ctx.reply(`\
 Aquí tienes una lista de redes sociales que tenemos soporte:
-- YouTube
-- Facebook`);
+${supportNetworksList.join("\n")}`);
   }
 }
