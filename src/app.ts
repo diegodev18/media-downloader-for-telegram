@@ -1,2 +1,12 @@
+import { bot } from "@/lib/telegraf-bot";
+import { FormBot } from "@/utils/form_bot";
+import { commands } from "./consts/commands";
 
-console.log("Hello, world!");
+bot.start(FormBot.start);
+
+bot.help(FormBot.help);
+
+Object.entries(commands).forEach(([command, { action }]) => {
+  bot.command(command, action);
+});
+
