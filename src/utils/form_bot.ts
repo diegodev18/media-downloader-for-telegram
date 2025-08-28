@@ -1,4 +1,5 @@
 import type { Context } from "telegraf";
+import { commands } from "@/consts/commands";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -11,10 +12,12 @@ Pero espera, aún no tenemos soporte para todas las redes sociales así que si d
   }
 
   static help(ctx: Context) {
+    const command_list = Object
+      .entries(commands)
+      .map(([command, { description }]) => `/${command} - ${description}`);
     ctx.reply(`\
 Aquí tienes una lista de comandos que puedes usar:
-/start - Iniciar el bot
-/help - Obtener ayuda`);
+${command_list.join("\n")}`);
   }
 
   static support(ctx: Context) {
