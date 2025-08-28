@@ -1,5 +1,4 @@
-import type { YtResponse } from "yt-dlp-exec";
-import ytdlp from "yt-dlp-exec";
+import ytdlp, { type YtResponse } from "yt-dlp-exec";
 import fs from "fs";
 
 const dirName = "vids";
