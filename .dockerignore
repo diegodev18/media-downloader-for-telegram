@@ -10,6 +10,7 @@ dist/
 # Env variables
 .env
 .env.example
+cookies.txt
 
 # Dev files
 nodemon.json
