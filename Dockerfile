@@ -31,6 +31,8 @@ COPY package*.json ./
 
 RUN pnpm install -P
 
+RUN echo "${COOKIES}" > cookies.txt
+
 COPY --from=build /usr/src/app/dist ./dist
 
 CMD ["node", "dist/app.js"]
