@@ -23,7 +23,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN pnpm install --omit=dev
+RUN pnpm install -P
 
 COPY --from=build /usr/src/app/dist ./dist
 
