@@ -9,3 +9,7 @@ dist/
 
 # Env variables
 .env
+.env.example
+
+# Dev files
+nodemon.json
