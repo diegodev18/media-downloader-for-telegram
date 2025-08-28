@@ -1,27 +1,18 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./src/*"
       ]
     },
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "module": "commonjs",
     "target": "es2016",
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist/",
     "esModuleInterop": true,
-    "types": [],
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }
