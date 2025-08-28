@@ -17,13 +17,13 @@ async function main() {
 
   bot.launch(() => {
     console.log('Bot started');
-  }).catch((error) => {
-    const status = error.response?.status || 500;
-    console.error(`Error ${status}: ${error.message}`);
   });
 
   process.once('SIGINT', () => bot.stop('SIGINT'));
   process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
 
-main();
+main().catch((error) => {
+  const status = error.response?.status || 500;
+  console.error(`Error ${status}: ${error.message}`);
+});
