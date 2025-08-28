@@ -11,7 +11,10 @@ export const downloadVideo = async (ctx: any, url: string) => {
   });
 
   video
-    .then((info) => printData(ctx, info, outputPath))
+    .then((info) => {
+      ctx.sendVideo(outputPath);
+      printData(ctx, info, outputPath);
+    })
     .catch((err) => {
       if (ctx) ctx.reply("❌ Error al descargar: " + err);
       console.error("❌ Error:", err);
