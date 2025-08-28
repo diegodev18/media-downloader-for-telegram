@@ -13,6 +13,8 @@ RUN npm run build
 
 FROM node:alpine3.22 AS production
 
+ENV NODE_ENV=production
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
