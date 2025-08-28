@@ -13,7 +13,7 @@ export const downloadVideo = async (ctx: any, url: string) => {
 
   const video = ytdlp(url, {
     output: outputPath,
-    format: "mp4"
+    format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
   });
 
   video
