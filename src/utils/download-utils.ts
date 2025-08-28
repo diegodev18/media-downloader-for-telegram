@@ -4,7 +4,7 @@ import fs from "fs";
 
 const dirName = "vids";
 
-export const downloadVideo = async (ctx: any, url: string) => {
+export const downloadVideo = async (url: string, ctx?: any) => {
   if (!fs.existsSync(dirName)) {
     fs.mkdirSync(dirName);
   }
