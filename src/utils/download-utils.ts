@@ -1,4 +1,5 @@
-import ytdlp, { type YtResponse } from "yt-dlp-exec";
+import type { YtResponse } from "yt-dlp-exec";
+import { youtubedl } from "@/lib/ytdlp-client";
 import fs from "fs";
 
 const dirName = "vids";
@@ -10,7 +11,7 @@ export const downloadVideo = async (url: string, ctx?: any) => {
 
   const outputPath = `${dirName}/${Date.now()}.mp4`;
 
-  const video = ytdlp(url, {
+  const video = youtubedl(url, {
     output: outputPath,
     format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
   });
