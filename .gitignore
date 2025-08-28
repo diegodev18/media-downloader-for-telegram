@@ -1,6 +1,17 @@
+# Python virtual environment
 venv/
+
+# Temporary files
 temp/
+
+# Video files
 *.mp4
+
+# Environment variables
 .env
+
+# Test files
 test.py
+
+# Cookies
 cookies.txt
