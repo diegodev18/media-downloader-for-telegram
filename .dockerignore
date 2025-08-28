@@ -1,0 +1,15 @@
+# Modules
+node_modules/
+
+# Lock files
+pnpm-lock.yaml
+
+# Build output
+dist/
+
+# Env variables
+.env
+.env.example
+
+# Dev files
+nodemon.json
