@@ -2,8 +2,14 @@ import type { YtResponse } from "yt-dlp-exec";
 import ytdlp from "yt-dlp-exec";
 import fs from "fs";
 
+const dirName = "vids";
+
 export const downloadVideo = async (ctx: any, url: string) => {
-  const outputPath = `vids/${Date.now()}.mp4`;
+  if (!fs.existsSync(dirName)) {
+    fs.mkdirSync(dirName);
+  }
+
+  const outputPath = `${dirName}/${Date.now()}.mp4`;
 
   const video = ytdlp(url, {
     output: outputPath,
@@ -11,9 +17,10 @@ export const downloadVideo = async (ctx: any, url: string) => {
   });
 
   video
-    .then((info) => {
-      ctx.sendVideo(outputPath);
+    .then(async (info) => {
+      await ctx.sendVideo(outputPath);
       printData(ctx, info, outputPath);
+      fs.rmSync(outputPath);
     })
     .catch((err) => {
       if (ctx) ctx.reply("❌ Error al descargar: " + err);
