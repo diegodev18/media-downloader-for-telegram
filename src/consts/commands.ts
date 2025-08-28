@@ -1,4 +1,4 @@
-import { FormBot } from "@/utils/form_bot";
+import { FormBot } from "@/utils/form-bot";
 
 export const commands = {
   support: {

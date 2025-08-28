@@ -1,5 +1,5 @@
 import { bot } from "@/lib/telegraf-bot";
-import { FormBot } from "@/utils/form_bot";
+import { FormBot } from "@/utils/form-bot";
 import { commands } from "./consts/commands";
 
 bot.start(FormBot.start);
