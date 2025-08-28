@@ -1,6 +1,7 @@
 import type { Context, NarrowedContext } from "telegraf";
 import { commands } from "@/consts/commands";
 import { supportNetworks } from "@/consts/support-networks";
+import { downloadVideo } from "@/utils/download-utils";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -45,6 +46,9 @@ ${supportNetworksList.join("\n")}`);
 
     if (!socialNetworkToDownload) {
       ctx.reply("No se encontró una red social compatible en el mensaje.");
+      return;
     }
+
+    downloadVideo(ctx, message);
   }
 }
