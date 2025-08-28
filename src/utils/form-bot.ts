@@ -1,6 +1,7 @@
-import type { Context } from "telegraf";
+import type { Context, NarrowedContext } from "telegraf";
 import { commands } from "@/consts/commands";
 import { supportNetworks } from "@/consts/support-networks";
+import { downloadVideo } from "@/utils/download-utils";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -26,5 +27,28 @@ ${command_list.join("\n")}`);
     ctx.reply(`\
 Aquí tienes una lista de redes sociales que tenemos soporte:
 ${supportNetworksList.join("\n")}`);
+  }
+
+  static download(ctx: any) {
+    const message = ctx.message?.text;
+    if (!message) return;
+
+    let socialNetworkToDownload: string | null = null;
+
+    supportNetworks.forEach((net) => {
+      net.urls.forEach((url) => {
+        if (message.toLowerCase().includes(url) && !socialNetworkToDownload) {
+          ctx.reply(`Descargando contenido de ${net.name}...`);
+          socialNetworkToDownload = net.id;
+        }
+      });
+    });
+
+    if (!socialNetworkToDownload) {
+      ctx.reply("No se encontró una red social compatible en el mensaje.");
+      return;
+    }
+
+    downloadVideo(ctx, message);
   }
 }

@@ -11,17 +11,7 @@ Object.entries(commands).forEach(([command, { action }]) => {
   bot.command(command, action);
 });
 
-bot.on(message('text'), async (ctx) => {
-  const text = ctx.message.text;
-
-  if (text.startsWith('https://www.facebook.com/share/r/')) {
-    ctx.reply(`Descargando video de Facebook...`);
-  } else if (text.startsWith('https://www.youtube.com/shorts/')) {
-    ctx.reply(`Descargando short de YouTube...`);
-  } else if (text.startsWith('https://youtu.be/') || text.startsWith('https://www.youtube.com/watch?v=')) {
-    ctx.reply(`Descargando video de YouTube...`);
-  }
-});
+bot.on(message('text'), (ctx) => FormBot.download(ctx));
 
 bot.launch(() => {
   console.log('Bot started');

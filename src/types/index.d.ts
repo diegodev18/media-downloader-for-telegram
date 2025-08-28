@@ -1,4 +1,5 @@
 export type SupportNetwork = {
+  id: string;
   name: string;
   urls: string[];
 };
