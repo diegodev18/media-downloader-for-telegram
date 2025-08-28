@@ -21,4 +21,4 @@ RUN npm install --omit=dev
 
 COPY --from=build /usr/src/app/dist ./dist
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/app.js"]
