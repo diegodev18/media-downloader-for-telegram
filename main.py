@@ -4,8 +4,6 @@ from os import environ, remove, makedirs, path
 from dotenv import load_dotenv
 from telegram import Bot
 from yt_dlp import YoutubeDL
-from asyncio import sleep as asyncio_sleep
-from time import sleep
 
 load_dotenv()
 BOT_TOKEN = environ.get("BOT_TOKEN")
