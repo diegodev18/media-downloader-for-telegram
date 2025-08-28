@@ -9,3 +9,8 @@ dist/
 
 # Env variables
 .env
+
+# Temp files & trash
+*.tmp
+*.temp
+vids/
