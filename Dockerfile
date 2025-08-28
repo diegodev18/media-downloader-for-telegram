@@ -17,6 +17,8 @@ FROM node:alpine3.22 AS production
 
 ENV NODE_ENV=production
 
+RUN apt install yt-dlp ffmpeg -y
+
 RUN npm add -g pnpm
 
 WORKDIR /usr/src/app
