@@ -1,6 +1,8 @@
 import { Telegraf } from "telegraf";
 
-process.loadEnvFile(".env");
+if (process.env.NODE_ENV !== "production" && process.loadEnvFile) {
+  process.loadEnvFile(".env");
+}
 
 const { BOT_TOKEN } = process.env;
 
