@@ -4,22 +4,26 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm add -g pnpm
+
+RUN pnpm install
 
 COPY . .
 
-RUN npm run build
+RUN pnpm run build
 
 
 FROM node:alpine3.22 AS production
 
 ENV NODE_ENV=production
 
+RUN npm add -g pnpm
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install --omit=dev
+RUN pnpm install --omit=dev
 
 COPY --from=build /usr/src/app/dist ./dist
 
