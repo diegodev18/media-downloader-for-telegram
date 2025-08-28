@@ -3,19 +3,28 @@ import { message } from "telegraf/filters";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
 
-bot.start(FormBot.start);
 
-bot.help(FormBot.help);
+async function main() {
+  (async () => {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  })();
 
-Object.entries(commands).forEach(([command, { action }]) => {
-  bot.command(command, action);
-});
+  bot.start(FormBot.start);
 
-bot.on(message('text'), (ctx) => FormBot.download(ctx));
+  bot.help(FormBot.help);
 
-bot.launch(() => {
-  console.log('Bot started');
-});
+  Object.entries(commands).forEach(([command, { action }]) => {
+    bot.command(command, action);
+  });
 
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  bot.on(message('text'), (ctx) => FormBot.download(ctx));
+
+  bot.launch(() => {
+    console.log('Bot started');
+  });
+
+  process.once('SIGINT', () => bot.stop('SIGINT'))
+  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+}
+
+main();
