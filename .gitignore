@@ -1,8 +1,9 @@
 # Python virtual environment
 venv/
 
-# Temporary files
+# Temporary files & trash
 temp/
+__pycache__/
 
 # Video files
 *.mp4
