@@ -5,10 +5,6 @@ import { commands } from "@/consts/commands";
 
 
 async function main() {
-  (async () => {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-  })();
-
   bot.start(FormBot.start);
 
   bot.help(FormBot.help);
@@ -21,10 +17,13 @@ async function main() {
 
   bot.launch(() => {
     console.log('Bot started');
+  }).catch((error) => {
+    const status = error.response?.status || 500;
+    console.error(`Error ${status}: ${error.message}`);
   });
 
-  process.once('SIGINT', () => bot.stop('SIGINT'))
-  process.once('SIGTERM', () => bot.stop('SIGTERM'))
+  process.once('SIGINT', () => bot.stop('SIGINT'));
+  process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
 
 main();
