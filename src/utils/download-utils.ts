@@ -12,7 +12,7 @@ export const downloadVideo = async (url: string, ctx?: any) => {
   const outputPath = `${dirName}/${Date.now()}.mp4`;
 
   const video = youtubedl(url, {
-    cookies: "cookies.txt",
+    cookies: "dist/cookies.txt",
     output: outputPath,
     format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
   });
