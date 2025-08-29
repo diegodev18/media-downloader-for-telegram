@@ -2,6 +2,7 @@ import type { Context, NarrowedContext } from "telegraf";
 import type { Update, Message } from "telegraf/typings/core/types/typegram";
 import { commands } from "@/consts/commands";
 import { downloadVideo } from "@/utils/download-utils";
+import { youtubedl } from "@/lib/ytdlp-client";
 import fs from "fs";
 
 export class FormBot {
@@ -69,7 +70,13 @@ ${command_list.join("\n")}`);
     }
 
     if (url) {
-      ctx.reply(`Información del video:\n${url}`);
+      return youtubedl(url, {
+        dumpSingleJson: true,
+        noWarnings: true,
+        preferFreeFormats: true,
+      }).then((info) => {
+        ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
+      });
     } else {
       ctx.reply("❌ No se encontró un enlace de video válido.");
     }
