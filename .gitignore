@@ -15,3 +15,6 @@ cookies*.txt
 *.tmp
 *.temp
 vids/
+
+# Tests
+coverage/
