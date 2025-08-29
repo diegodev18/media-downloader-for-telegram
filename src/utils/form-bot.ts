@@ -63,22 +63,25 @@ ${command_list.join("\n")}`);
     });
   }
 
-  static info(ctx: Context) {
+  static async info(ctx: Context) {
     let url: string | undefined;
     if (ctx.message && "text" in ctx.message) {
       url = ctx.message.text.split(" ")[1];
     }
 
-    if (url) {
-      return youtubedl(url, {
-        dumpSingleJson: true,
-        noWarnings: true,
-        preferFreeFormats: true,
-      }).then((info) => {
-        ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
-      });
-    } else {
-      ctx.reply("❌ No se encontró un enlace de video válido.");
+    if (!url) {
+      ctx.reply("❌ Por favor, proporciona un enlace de video para obtener información. Uso: /info <enlace>");
+      return;
     }
+
+    youtubedl(url, {
+      dumpSingleJson: true,
+      noWarnings: true,
+      preferFreeFormats: true,
+    }).then((info) => {
+      ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
+    }).catch(() => {
+      ctx.reply(`❌ Error al obtener información del video`);
+    });
   }
 }
