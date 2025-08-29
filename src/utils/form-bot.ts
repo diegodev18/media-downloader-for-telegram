@@ -29,7 +29,10 @@ ${command_list.join("\n")}`);
     const message: string = ctx.message?.text;
     if (!message) return;
 
-    ctx.reply(`Descargando video...\nUrl: ...${message.slice(15, message.length)}`);
+    const domain = message.split("/")[2];
+    const videoId = message.split("/")[4];
+
+    ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
     downloadVideo(message, ctx).then((videoPath) => {
       if (videoPath) ctx.replyWithVideo({
