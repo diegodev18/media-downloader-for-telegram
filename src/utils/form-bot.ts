@@ -32,16 +32,24 @@ ${command_list.join("\n")}`);
     const domain = message.split("/")[2];
     const videoId = message.split("/")[4];
 
+    const fromUsername = ctx.from.username;
+
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
     downloadVideo(message).then((videoData) => {
       if (!videoData) return;
 
-      const { output } = videoData;
+      const { output, dataLines } = videoData;
+
+      ctx.reply("Descarga exitosa!\nEnviando...");
 
       ctx.replyWithVideo({
-        source: fs.createReadStream(output)
+        source: fs.createReadStream(output),
+      }, {
+        caption: `Listo, ten el video que me pediste${fromUsername && ` ${fromUsername}`}!`
       }).then(() => {
+        ctx.reply(`Información del video:\n${dataLines.join("\n")}`);
+
         fs.rmSync(output);
       }).catch(() => {
         ctx.reply("❌ Error al enviar el video.");
