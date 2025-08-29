@@ -1,5 +1,4 @@
 import { create } from "yt-dlp-exec";
+import { YTDLP_BINARY_PATH } from "@/config";
 
-const binaryPath = "yt-dlp";
-
-export const youtubedl = create(binaryPath);
+export const youtubedl = create(YTDLP_BINARY_PATH);
