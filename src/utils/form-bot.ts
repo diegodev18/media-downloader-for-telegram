@@ -75,6 +75,8 @@ ${command_list.join("\n")}`);
       return;
     }
 
+    ctx.reply("Obteniendo información del video...");
+
     youtubedl(url, {
       cookies: YTDLP_CONFIG.COOKIES_FILE,
       dumpSingleJson: true,
