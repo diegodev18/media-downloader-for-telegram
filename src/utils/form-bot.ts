@@ -1,6 +1,6 @@
 import fs from "fs";
 import { commands } from "@/consts/commands";
-import { downloadVideo } from "@/utils/download-utils";
+import { downloadVideo, getDataLines } from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { Context, NarrowedContext } from "telegraf";
@@ -81,7 +81,7 @@ ${command_list.join("\n")}`);
       noWarnings: true,
       preferFreeFormats: true,
     }).then((info) => {
-      ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
+      ctx.reply(`Información del video:\n${getDataLines(info, null).join("\n")}`);
     }).catch((err) => {
       ctx.reply(`❌ Error al obtener información del video`);
       console.error("/info", err.message);

@@ -31,13 +31,15 @@ export const downloadVideo = async (
     .catch(() => null);
 };
 
-const getDataLines = (info: YtResponse, outputPath: string) => {
-  return [
+export const getDataLines = (info: YtResponse, outputPath: string | null): string[] => {
+  const dataLines = [
     `- Titulo del video: ${info.title}`,
     `- Duración del video: ${info.duration}`,
     `- Channel: ${info.channel}`,
-    `- Tamaño del video: ${fs.statSync(outputPath).size} bytes`,
-    `- Ruta del archivo: ${outputPath}`,
+    outputPath ? `- Tamaño del video: ${fs.statSync(outputPath).size} bytes` : null,
+    outputPath ? `- Ruta del archivo: ${outputPath}` : null,
     `- Formato: mp4`
   ];
+
+  return dataLines.filter(Boolean) as string[];
 }
