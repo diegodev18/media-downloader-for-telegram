@@ -4,7 +4,9 @@ import fs from "fs";
 
 const dirName = "vids";
 
-export const downloadVideo = async (url: string, ctx?: any): Promise<string | null> => {
+export const downloadVideo = async (
+  url: string,
+): Promise<{ output: string; info: YtResponse; dataLines: string[] } | null> => {
   if (!fs.existsSync(dirName)) {
     fs.mkdirSync(dirName);
   }
@@ -19,36 +21,22 @@ export const downloadVideo = async (url: string, ctx?: any): Promise<string | nu
 
   return video
     .then(async (info) => {
-      printData(ctx, info, outputPath);
-      return outputPath;
+      return {
+        output: outputPath,
+        info,
+        dataLines: getDataLines(info, outputPath)
+      };
     })
-    .catch((err) => {
-      if (ctx) ctx.reply("❌ Error al descargar");
-
-      console.error(
-        "❌ Error al descargar: ",
-        ctx.from ? `from ${ctx.from?.username}` : '',
-        err
-      );
-
-      return null;
-    });
+    .catch(() => null);
 };
-
-const printData = (ctx: any, info: YtResponse, outputPath: string) => {
-  const dataLinesStr = getDataLines(info, outputPath).join("\n");
-
-  if (ctx) ctx.reply(dataLinesStr);
-  console.log(dataLinesStr);
-}
 
 const getDataLines = (info: YtResponse, outputPath: string) => {
   return [
-    `   - Titulo del video: ${info.title}`,
-    `   - Duración del video: ${info.duration}`,
-    `   - Channel: ${info.channel}`,
-    `   - Tamaño del video: ${fs.statSync(outputPath).size} bytes`,
-    `   - Ruta del archivo: ${outputPath}`,
-    `   - Formato: mp4`
+    `- Titulo del video: ${info.title}`,
+    `- Duración del video: ${info.duration}`,
+    `- Channel: ${info.channel}`,
+    `- Tamaño del video: ${fs.statSync(outputPath).size} bytes`,
+    `- Ruta del archivo: ${outputPath}`,
+    `- Formato: mp4`
   ];
 }
