@@ -3,16 +3,16 @@ import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
 
-const dirName = "vids";
+const { DIRECTORY_NAME } = YTDLP;
 
 export const downloadVideo = async (
   url: string,
 ): Promise<{ output: string; info: YtResponse; dataLines: string[] } | null> => {
-  if (!fs.existsSync(dirName)) {
-    fs.mkdirSync(dirName);
+  if (!fs.existsSync(DIRECTORY_NAME)) {
+    fs.mkdirSync(DIRECTORY_NAME);
   }
 
-  const outputPath = `${dirName}/${Date.now()}.${YTDLP.EXTENSION}`;
+  const outputPath = `${DIRECTORY_NAME}/${Date.now()}.${YTDLP.EXTENSION}`;
 
   const video = youtubedl(url, {
     cookies: YTDLP.COOKIES_FILE,

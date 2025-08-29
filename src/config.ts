@@ -12,5 +12,6 @@ export const YTDLP = {
   BINARY_PATH: "yt-dlp",
   COOKIES_FILE: "dist/cookies.txt",
   FORMAT: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
-  EXTENSION: "mp4"
+  EXTENSION: "mp4",
+  DIRECTORY_NAME: "vids"
 };
