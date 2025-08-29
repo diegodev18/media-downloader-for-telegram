@@ -5,7 +5,7 @@ import type { YtResponse } from "yt-dlp-exec";
 
 const { DIRECTORY_NAME } = YTDLP;
 
-export const downloadVideo = (
+export const downloadVideo = async (
   url: string,
 ): Promise<{ output: string; info: YtResponse; dataLines: string[] } | null> => {
   if (!fs.existsSync(DIRECTORY_NAME)) {
