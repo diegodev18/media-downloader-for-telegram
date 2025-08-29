@@ -9,7 +9,7 @@ dist/
 
 # Env variables
 .env
-cookies.txt
+cookies*.txt
 
 # Temp files & trash
 *.tmp
