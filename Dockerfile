@@ -12,6 +12,7 @@ COPY . .
 
 RUN pnpm run build
 
+RUN echo "${COOKIES}" > dist/cookies.txt
 
 FROM node:alpine3.22 AS production
 
@@ -30,8 +31,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN pnpm install -P
-
-RUN echo "${COOKIES}" > cookies.txt
 
 COPY --from=build /usr/src/app/dist ./dist
 
