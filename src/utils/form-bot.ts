@@ -61,4 +61,17 @@ ${command_list.join("\n")}`);
       });
     });
   }
+
+  static info(ctx: Context) {
+    let url: string | undefined;
+    if (ctx.message && "text" in ctx.message) {
+      url = ctx.message.text.split(" ")[1];
+    }
+
+    if (url) {
+      ctx.reply(`Información del video:\n${url}`);
+    } else {
+      ctx.reply("❌ No se encontró un enlace de video válido.");
+    }
+  }
 }
