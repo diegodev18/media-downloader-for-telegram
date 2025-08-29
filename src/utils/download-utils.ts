@@ -27,8 +27,8 @@ export const downloadVideo = async (url: string, ctx?: any) => {
       if (ctx) ctx.reply("❌ Error al descargar");
       console.error(
         "❌ Error al descargar: ",
-        ctx.from ? `from ${ctx.from?.first_name}` : '',
-        err.message
+        ctx.from ? `from ${ctx.from?.username}` : '',
+        err
       );
     });
 };
