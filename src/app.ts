@@ -14,7 +14,7 @@ async function main() {
     bot.command(command, action);
   });
 
-  bot.on(message('text'), async (ctx) => FormBot.download(ctx));
+  bot.on(message('text'), (ctx) => FormBot.download(ctx));
 
   bot.launch(() => {
     console.log('Bot started');

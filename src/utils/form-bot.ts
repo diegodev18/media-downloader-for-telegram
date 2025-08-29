@@ -23,10 +23,10 @@ Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
-  static async download(
+  static download(
     ctx:
       NarrowedContext<Context<Update>, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>
-  ): Promise<void> {
+  ): void {
     const message: string = ctx.message?.text;
     if (!message) return;
 
