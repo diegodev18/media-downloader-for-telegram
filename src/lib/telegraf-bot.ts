@@ -1,10 +1,5 @@
 import { Telegraf } from "telegraf";
-
-if (process.env.NODE_ENV !== "production" && process.loadEnvFile) {
-  process.loadEnvFile(".env");
-}
-
-const { BOT_TOKEN } = process.env;
+import { BOT_TOKEN } from "@/config";
 
 if (!BOT_TOKEN) {
   throw new Error("BOT_TOKEN is not defined");
