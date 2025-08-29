@@ -4,7 +4,7 @@ import fs from "fs";
 
 const dirName = "vids";
 
-export const downloadVideo = async (url: string, ctx?: any) => {
+export const downloadVideo = async (url: string, ctx?: any): Promise<string | null> => {
   if (!fs.existsSync(dirName)) {
     fs.mkdirSync(dirName);
   }
@@ -17,7 +17,7 @@ export const downloadVideo = async (url: string, ctx?: any) => {
     format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
   });
 
-  video
+  return video
     .then(async (info) => {
       printData(ctx, info, outputPath);
 
@@ -27,7 +27,7 @@ export const downloadVideo = async (url: string, ctx?: any) => {
           ctx.reply("❌ Error al enviar el video, es posible que el archivo sea demasiado grande para Telegram.");
         });
 
-      fs.rmSync(outputPath);
+      return outputPath;
     })
     .catch((err) => {
       if (ctx) ctx.reply("❌ Error al descargar");
@@ -37,6 +37,8 @@ export const downloadVideo = async (url: string, ctx?: any) => {
         ctx.from ? `from ${ctx.from?.username}` : '',
         err
       );
+
+      return null;
     });
 };
 

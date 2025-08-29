@@ -29,7 +29,7 @@ Aquí tienes una lista de redes sociales que tenemos soporte:
 ${supportNetworksList.join("\n")}`);
   }
 
-  static download(ctx: any) {
+  static async download(ctx: any) {
     const message = ctx.message?.text;
     if (!message) return;
 
@@ -51,6 +51,6 @@ ${supportNetworksList.join("\n")}`);
 
     ctx.reply(`Obteniendo datos de ${message}...`);
 
-    downloadVideo(message, ctx);
+    return downloadVideo(message, ctx);
   }
 }

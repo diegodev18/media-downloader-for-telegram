@@ -13,7 +13,11 @@ async function main() {
     bot.command(command, action);
   });
 
-  bot.on(message('text'), (ctx) => FormBot.download(ctx));
+  bot.on(message('text'), async (ctx) => {
+    FormBot.download(ctx).then((vidPath) => {
+      if (vidPath) ctx.sendVideo(vidPath);
+    });
+  });
 
   bot.launch(() => {
     console.log('Bot started');
