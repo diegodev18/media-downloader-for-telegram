@@ -2,7 +2,9 @@ import { message } from "telegraf/filters";
 import { bot } from "@/lib/telegraf-bot";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
+import { logRequest } from "@/lib/middlewares";
 
+bot.use(logRequest);
 
 async function main() {
   bot.start(FormBot.start);
