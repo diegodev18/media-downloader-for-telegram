@@ -1,4 +1,4 @@
-import type { Context, NarrowedContext } from "telegraf";
+import type { Context } from "telegraf";
 import { commands } from "@/consts/commands";
 import { downloadVideo } from "@/utils/download-utils";
 
