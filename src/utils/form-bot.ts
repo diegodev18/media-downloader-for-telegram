@@ -49,6 +49,8 @@ ${supportNetworksList.join("\n")}`);
       return;
     }
 
+    ctx.reply(`Obteniendo datos de ${message}...`);
+
     downloadVideo(message, ctx);
   }
 }
