@@ -12,7 +12,7 @@ Request received:
 From: ${ctx.from?.username || ctx.from?.first_name || 'Unknown'}
 Chat ID: ${ctx.chat?.id}
 Message ID: ${ctx.message?.message_id || 'N/A'}
-Command: ${command}
+Command: ${command[0] === '/' ? command : 'N/A'}
 Timestamp: ${new Date().toISOString()}`);
   next();
 };
