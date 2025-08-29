@@ -1,4 +1,5 @@
-import type { Context } from "telegraf";
+import type { Context, NarrowedContext } from "telegraf";
+import type { Update, Message } from "telegraf/typings/core/types/typegram";
 import { commands } from "@/consts/commands";
 import { downloadVideo } from "@/utils/download-utils";
 
@@ -20,7 +21,7 @@ Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
-  static async download(ctx: any) {
+  static async download(ctx: NarrowedContext<Context<Update>, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>) {
     const message: string = ctx.message?.text;
     if (!message) return;
 
