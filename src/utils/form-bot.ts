@@ -21,12 +21,15 @@ Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
-  static async download(ctx: NarrowedContext<Context<Update>, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>) {
+  static async download(
+    ctx:
+      NarrowedContext<Context<Update>, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>
+  ): Promise<void> {
     const message: string = ctx.message?.text;
     if (!message) return;
 
     ctx.reply(`Descargando video...\nUrl: ...${message.slice(15, message.length)}`);
 
-    return downloadVideo(message, ctx);
+    downloadVideo(message, ctx);
   }
 }
