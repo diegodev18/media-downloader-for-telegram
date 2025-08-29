@@ -50,7 +50,7 @@ ${command_list.join("\n")}`);
       ctx.replyWithVideo({
         source: fs.createReadStream(output),
       }, {
-        caption: `Listo, ten el video que me pediste${fromUsername && ` ${fromUsername}`}!`
+        caption: `Listo, ten el video que me pediste${fromUsername && ` @${fromUsername}`}!`
       }).then(() => {
         ctx.reply(`Información del video:\n${dataLines.join("\n")}`);
 
