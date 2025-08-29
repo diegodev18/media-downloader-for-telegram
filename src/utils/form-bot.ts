@@ -21,10 +21,10 @@ ${command_list.join("\n")}`);
   }
 
   static async download(ctx: any) {
-    const message = ctx.message?.text;
+    const message: string = ctx.message?.text;
     if (!message) return;
 
-    ctx.reply(`Descargando video...\nUrl: ${message}`);
+    ctx.reply(`Descargando video...\nUrl: ...${message.slice(15, message.length)}`);
 
     return downloadVideo(message, ctx);
   }
