@@ -2,6 +2,7 @@ import type { Context, NarrowedContext } from "telegraf";
 import type { Update, Message } from "telegraf/typings/core/types/typegram";
 import { commands } from "@/consts/commands";
 import { downloadVideo } from "@/utils/download-utils";
+import fs from "fs";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -30,6 +31,15 @@ ${command_list.join("\n")}`);
 
     ctx.reply(`Descargando video...\nUrl: ...${message.slice(15, message.length)}`);
 
-    downloadVideo(message, ctx);
+    downloadVideo(message, ctx).then((videoPath) => {
+      if (videoPath) ctx.replyWithVideo({
+        source: fs.createReadStream(videoPath)
+      }).then(() => {
+        fs.rmSync(videoPath);
+      }).catch(() => {
+        ctx.reply("❌ Error al enviar el video.");
+        fs.rmSync(videoPath);
+      });
+    });
   }
 }

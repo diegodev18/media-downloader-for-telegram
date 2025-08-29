@@ -14,19 +14,7 @@ async function main() {
     bot.command(command, action);
   });
 
-  bot.on(message('text'), async (ctx) => {
-    FormBot.download(ctx).then((vidPath) => {
-      if (vidPath) ctx.replyWithVideo({
-        source: fs.createReadStream(vidPath),
-      }).then(() => {
-        fs.rmSync(vidPath);
-      }).catch((err) => {
-        console.error('❌ Error sending video:', err);
-        ctx.reply("❌ Error al enviar el video, es posible que el archivo sea demasiado grande para Telegram.");
-        fs.rmSync(vidPath);
-      });
-    });
-  });
+  bot.on(message('text'), async (ctx) => FormBot.download(ctx));
 
   bot.launch(() => {
     console.log('Bot started');
