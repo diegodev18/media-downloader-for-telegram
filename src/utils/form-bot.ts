@@ -24,6 +24,8 @@ ${command_list.join("\n")}`);
     const message = ctx.message?.text;
     if (!message) return;
 
+    ctx.reply(`Descargando video...\nUrl: ${message}`);
+
     return downloadVideo(message, ctx);
   }
 }
