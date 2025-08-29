@@ -19,8 +19,8 @@ export const downloadVideo = async (url: string, ctx?: any) => {
 
   video
     .then(async (info) => {
-      if (ctx) await ctx.sendVideo(outputPath);
       printData(ctx, info, outputPath);
+      if (ctx) await ctx.sendVideo(outputPath);
       fs.rmSync(outputPath);
     })
     .catch((err) => {
