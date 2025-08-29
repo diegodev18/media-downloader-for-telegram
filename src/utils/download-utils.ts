@@ -12,7 +12,7 @@ export const downloadVideo = async (
     fs.mkdirSync(dirName);
   }
 
-  const outputPath = `${dirName}/${Date.now()}.mp4`;
+  const outputPath = `${dirName}/${Date.now()}.${YTDLP.EXTENSION}`;
 
   const video = youtubedl(url, {
     cookies: YTDLP.COOKIES_FILE,
