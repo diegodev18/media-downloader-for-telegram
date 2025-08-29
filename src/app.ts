@@ -2,6 +2,7 @@ import { bot } from "@/lib/telegraf-bot";
 import { message } from "telegraf/filters";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
+import fs from "fs";
 
 
 async function main() {
@@ -15,7 +16,12 @@ async function main() {
 
   bot.on(message('text'), async (ctx) => {
     FormBot.download(ctx).then((vidPath) => {
-      if (vidPath) ctx.sendVideo(vidPath);
+      if (vidPath) ctx.replyWithVideo({
+        source: fs.createReadStream(vidPath),
+      }).then(() => {
+        fs.unlinkSync(vidPath);
+        fs.rmSync(vidPath);
+      });
     });
   });
 
