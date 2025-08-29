@@ -37,7 +37,10 @@ ${command_list.join("\n")}`);
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
     downloadVideo(message).then((videoData) => {
-      if (!videoData) return;
+      if (!videoData) {
+        ctx.reply("❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo.");
+        return;
+      };
 
       const { output, dataLines } = videoData;
 
@@ -52,7 +55,8 @@ ${command_list.join("\n")}`);
 
         fs.rmSync(output);
       }).catch(() => {
-        ctx.reply("❌ Error al enviar el video.");
+        ctx.reply("❌ Error al enviar el video. Probablemente se debe a que el video sea mayor a 50 MB.");
+
         fs.rmSync(output);
       });
     });
