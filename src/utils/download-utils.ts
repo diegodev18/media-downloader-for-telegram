@@ -1,5 +1,6 @@
 import fs from "fs";
 import { youtubedl } from "@/lib/ytdlp-client";
+import { YTDLP } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
 
 const dirName = "vids";
@@ -14,9 +15,9 @@ export const downloadVideo = async (
   const outputPath = `${dirName}/${Date.now()}.mp4`;
 
   const video = youtubedl(url, {
-    cookies: "dist/cookies.txt",
+    cookies: YTDLP.COOKIES_FILE,
     output: outputPath,
-    format: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
+    format: YTDLP.FORMAT
   });
 
   return video

@@ -8,4 +8,8 @@ export const {
   BOT_TOKEN
 } = process.env;
 
-export const YTDLP_BINARY_PATH = "yt-dlp";
+export const YTDLP = {
+  BINARY_PATH: "yt-dlp",
+  COOKIES_FILE: "dist/cookies.txt",
+  FORMAT: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
+};
