@@ -34,11 +34,14 @@ export const downloadVideo = async (
 export const getDataLines = (info: YtResponse, outputPath: string | null): string[] => {
   const dataLines = [
     `- Titulo del video: ${info.title}`,
-    `- Duración del video: ${info.duration}`,
+    `- Duración del video: ${info.duration} segundos`,
+    `- Descripción: ${info.description}`,
+    `- Likes: ${info.like_count}`,
+    `- Fecha de subida: ${info.upload_date}`,
     `- Channel: ${info.channel}`,
     outputPath ? `- Tamaño del video: ${fs.statSync(outputPath).size} bytes` : null,
     outputPath ? `- Ruta del archivo: ${outputPath}` : null,
-    `- Formato: mp4`
+    `- Formato: mp4`,
   ];
 
   return dataLines.filter(Boolean) as string[];
