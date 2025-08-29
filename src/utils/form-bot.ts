@@ -80,8 +80,9 @@ ${command_list.join("\n")}`);
       preferFreeFormats: true,
     }).then((info) => {
       ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
-    }).catch(() => {
+    }).catch((err) => {
       ctx.reply(`❌ Error al obtener información del video`);
+      console.log("info", err);
     });
   }
 }
