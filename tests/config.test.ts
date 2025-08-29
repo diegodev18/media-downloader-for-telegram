@@ -1,8 +1,8 @@
-if (
-  process.env.NODE_ENV !== 'production' && process.loadEnvFile
-) {
-  process.loadEnvFile(".env");
-}
+(async () => {
+  if (process.env.NODE_ENV !== 'production') {
+    await import('dotenv').then(dotenv => dotenv.config());
+  }
+})();
 
 describe('Valid required configs', () => {
   test('should have some env variables', () => {
