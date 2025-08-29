@@ -34,14 +34,18 @@ ${command_list.join("\n")}`);
 
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
-    downloadVideo(message, ctx).then((videoPath) => {
-      if (videoPath) ctx.replyWithVideo({
-        source: fs.createReadStream(videoPath)
+    downloadVideo(message).then((videoData) => {
+      if (!videoData) return;
+
+      const { output } = videoData;
+
+      ctx.replyWithVideo({
+        source: fs.createReadStream(output)
       }).then(() => {
-        fs.rmSync(videoPath);
+        fs.rmSync(output);
       }).catch(() => {
         ctx.reply("❌ Error al enviar el video.");
-        fs.rmSync(videoPath);
+        fs.rmSync(output);
       });
     });
   }
