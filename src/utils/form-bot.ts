@@ -2,6 +2,7 @@ import fs from "fs";
 import { commands } from "@/consts/commands";
 import { downloadVideo } from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
+import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { Context, NarrowedContext } from "telegraf";
 import type { Update, Message } from "telegraf/typings/core/types/typegram";
 
@@ -75,6 +76,7 @@ ${command_list.join("\n")}`);
     }
 
     youtubedl(url, {
+      cookies: YTDLP_CONFIG.COOKIES_FILE,
       dumpSingleJson: true,
       noWarnings: true,
       preferFreeFormats: true,
@@ -82,7 +84,7 @@ ${command_list.join("\n")}`);
       ctx.reply(`Información del video:\n${JSON.stringify(info, null, 2)}`);
     }).catch((err) => {
       ctx.reply(`❌ Error al obtener información del video`);
-      console.log("info", err);
+      console.error("/info", err.message);
     });
   }
 }
