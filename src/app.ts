@@ -21,6 +21,10 @@ async function main() {
       }).then(() => {
         fs.unlinkSync(vidPath);
         fs.rmSync(vidPath);
+      }).catch((err) => {
+        console.error('Error sending video:', err);
+        ctx.reply("❌ Error al enviar el video, es posible que el archivo sea demasiado grande para Telegram.");
+        fs.rmSync(vidPath);
       });
     });
   });
