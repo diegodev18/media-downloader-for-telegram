@@ -20,13 +20,6 @@ export const downloadVideo = async (url: string, ctx?: any): Promise<string | nu
   return video
     .then(async (info) => {
       printData(ctx, info, outputPath);
-
-      if (ctx) await Promise.resolve(
-        ctx.sendVideo(outputPath))
-        .catch(() => {
-          ctx.reply("❌ Error al enviar el video, es posible que el archivo sea demasiado grande para Telegram.");
-        });
-
       return outputPath;
     })
     .catch((err) => {
