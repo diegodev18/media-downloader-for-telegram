@@ -1,6 +1,6 @@
-import type { YtResponse } from "yt-dlp-exec";
-import { youtubedl } from "@/lib/ytdlp-client";
 import fs from "fs";
+import { youtubedl } from "@/lib/ytdlp-client";
+import type { YtResponse } from "yt-dlp-exec";
 
 const dirName = "vids";
 

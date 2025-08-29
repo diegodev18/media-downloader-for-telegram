@@ -1,8 +1,7 @@
-import { bot } from "@/lib/telegraf-bot";
 import { message } from "telegraf/filters";
+import { bot } from "@/lib/telegraf-bot";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
-import fs from "fs";
 
 
 async function main() {
