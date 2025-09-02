@@ -1,6 +1,6 @@
 import fs from "fs";
 import { youtubedl } from "@/lib/ytdlp-client";
-import { YTDLP } from "@/config";
+import { YTDLP, DESCRIPTION_MAX_LENGTH } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
 
 const { DIRECTORY_NAME } = YTDLP;
@@ -37,7 +37,7 @@ export const getDataLines = (info: YtResponse, outputPath: string | null): strin
   const dataLines = [
     title ? `- Titulo del video: ${title}` : null,
     duration ? `- Duración del video: ${duration} segundos` : null,
-    description ? `- Descripción: ${description}` : null,
+    description ? `- Descripción: ${description.slice(0, DESCRIPTION_MAX_LENGTH)}${description.length > DESCRIPTION_MAX_LENGTH ? '...' : ''}` : null,
     like_count ? `- Likes: ${like_count}` : null,
     upload_date ? `- Fecha de subida: ${upload_date}` : null,
     channel ? `- Channel: ${channel}` : null,

@@ -15,3 +15,5 @@ export const YTDLP = {
   EXTENSION: "mp4",
   DIRECTORY_NAME: "vids"
 };
+
+export const DESCRIPTION_MAX_LENGTH = 50;
