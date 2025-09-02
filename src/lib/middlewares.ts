@@ -6,13 +6,8 @@ export const logRequest = (ctx: Context<Update>, next: () => Promise<void>) => {
   if (command !== 'N/A') {
     command = command !== 'N/A' ? command.slice(0, command.indexOf(' ')) : command;
   }
+  const requestFrom = ctx.from?.username || ctx.from?.first_name || 'Unknown';
 
-  console.log(`\
-Request received:
-From: ${ctx.from?.username || ctx.from?.first_name || 'Unknown'}
-Chat ID: ${ctx.chat?.id}
-Message ID: ${ctx.message?.message_id || 'N/A'}
-Command: ${command[0] === '/' ? command : 'N/A'}
-Timestamp: ${new Date().toISOString()}`);
+  console.log(`Request received: From: ${requestFrom}, Chat ID: ${ctx.chat?.id}, Command: ${command[0] === '/' ? command : 'N/A'}`);
   next();
 };
