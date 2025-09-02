@@ -3,6 +3,7 @@ import { commands } from "@/consts/commands";
 import { downloadVideo, getDataLines } from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
+import type { TelegrafContext } from "@/types/telegraf";
 import type { Context, NarrowedContext } from "telegraf";
 import type { Update, Message } from "telegraf/typings/core/types/typegram";
 
@@ -26,7 +27,7 @@ ${command_list.join("\n")}`);
 
   static download(
     ctx:
-      NarrowedContext<Context<Update>, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>
+      NarrowedContext<TelegrafContext, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>
   ): void {
     const message: string = ctx.message?.text;
     if (!message) return;
