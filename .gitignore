@@ -15,6 +15,7 @@ cookies*.txt
 *.tmp
 *.temp
 vids/
+.DS_Store
 
 # Tests
 coverage/
