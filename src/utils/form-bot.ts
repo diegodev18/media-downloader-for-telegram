@@ -5,7 +5,7 @@ import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { TelegrafContext } from "@/types/telegraf";
 import type { Context, NarrowedContext } from "telegraf";
-import type { Update, Message } from "telegraf/typings/core/types/typegram";
+import type { Update, Message } from "telegraf/types";
 
 export class FormBot {
   static start(ctx: Context) {
@@ -17,17 +17,19 @@ Soy un bot de Telegram y mi tarea es ayudarte a descargar archivos multimedia de
   }
 
   static help(ctx: Context) {
-    const command_list = Object
-      .entries(commands)
-      .map(([command, { description }]) => `/${command} - ${description}`);
+    const command_list = Object.entries(commands).map(
+      ([command, { description }]) => `/${command} - ${description}`
+    );
     ctx.reply(`\
 Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
   static download(
-    ctx:
-      NarrowedContext<TelegrafContext, Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>>
+    ctx: NarrowedContext<
+      TelegrafContext,
+      Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>
+    >
   ): void {
     const message: string = ctx.message?.text;
     if (!message) return;
@@ -37,31 +39,45 @@ ${command_list.join("\n")}`);
 
     const fromUsername = ctx.from.username;
 
+    ctx.sendChatAction("typing");
+
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
     downloadVideo(message).then((videoData) => {
       if (!videoData) {
-        ctx.reply("❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo.");
+        ctx.reply(
+          "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+        );
         return;
-      };
+      }
 
       const { output, dataLines } = videoData;
 
       ctx.reply("Descarga exitosa!\nEnviando...");
 
-      ctx.replyWithVideo({
-        source: fs.createReadStream(output),
-      }, {
-        caption: `Listo, ten el video que me pediste${fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`}!`
-      }).then(() => {
-        ctx.reply(`Información del video:\n${dataLines.join("\n")}`);
+      ctx
+        .replyWithVideo(
+          {
+            source: fs.createReadStream(output),
+          },
+          {
+            caption: `Listo, ten el video que me pediste${
+              fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
+            }!`,
+          }
+        )
+        .then(() => {
+          ctx.reply(`Información del video:\n${dataLines.join("\n")}`);
 
-        fs.rmSync(output);
-      }).catch(() => {
-        ctx.reply("❌ Error al enviar el video. Probablemente se debe a que el video sea mayor a 50 MB.");
+          fs.rmSync(output);
+        })
+        .catch(() => {
+          ctx.reply(
+            "❌ Error al enviar el video. Probablemente se debe a que el video sea mayor a 50 MB."
+          );
 
-        fs.rmSync(output);
-      });
+          fs.rmSync(output);
+        });
     });
   }
 
@@ -72,7 +88,9 @@ ${command_list.join("\n")}`);
     }
 
     if (!url) {
-      ctx.reply("❌ Por favor, proporciona un enlace de video para obtener información. Uso: /info <enlace>");
+      ctx.reply(
+        "❌ Por favor, proporciona un enlace de video para obtener información. Uso: /info <enlace>"
+      );
       return;
     }
 
@@ -83,11 +101,15 @@ ${command_list.join("\n")}`);
       dumpSingleJson: true,
       noWarnings: true,
       preferFreeFormats: true,
-    }).then((info) => {
-      ctx.reply(`Información del video:\n${getDataLines(info, null).join("\n")}`);
-    }).catch((err) => {
-      ctx.reply(`❌ Error al obtener información del video`);
-      console.error("/info", err.message);
-    });
+    })
+      .then((info) => {
+        ctx.reply(
+          `Información del video:\n${getDataLines(info, null).join("\n")}`
+        );
+      })
+      .catch((err) => {
+        ctx.reply(`❌ Error al obtener información del video`);
+        console.error("/info", err.message);
+      });
   }
 }
