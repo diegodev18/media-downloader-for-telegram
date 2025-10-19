@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    container_name: media_downloader_for_telegram_app
+    environment:
+      - BOT_TOKEN
+      - COOKIES
+    restart: unless-stopped
