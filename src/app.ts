@@ -6,26 +6,25 @@ import { logRequest } from "@/lib/middlewares";
 
 bot.use(logRequest);
 
-async function main() {
-  bot.start(FormBot.start);
+bot.start(FormBot.start);
 
-  bot.help(FormBot.help);
+bot.help(FormBot.help);
 
-  Object.entries(commands).forEach(([command, { action }]) => {
-    bot.command(command, action);
-  });
+Object.entries(commands).forEach(([command, { action }]) => {
+  bot.command(command, action);
+});
 
-  bot.on(message('text'), (ctx) => FormBot.download(ctx));
+bot.on(message("text"), (ctx) => {
+  try {
+    FormBot.download(ctx);
+  } catch (err) {
+    console.error("Error in FormBot.download:", err);
+    ctx.reply(
+      "❌ Ocurrió un error inesperado al procesar tu solicitud. Por favor, inténtalo de nuevo más tarde."
+    );
+  }
+});
 
-  bot.launch(() => {
-    console.log('Bot started');
-  });
-
-  process.once('SIGINT', () => bot.stop('SIGINT'));
-  process.once('SIGTERM', () => bot.stop('SIGTERM'));
-}
-
-main().catch((error) => {
-  const status = error.response?.status || 500;
-  console.error(`Error ${status}: ${error.message}`);
+bot.launch(() => {
+  console.log("Bot started");
 });
