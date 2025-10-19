@@ -92,8 +92,18 @@ ${command_list.join("\n")}`);
         ctx.reply("❌ Error al enviar el video.");
       }
       console.error(
-        "Error al enviar el video:",
+        `Error al enviar el video ${info.id}:`,
         err.response || { message: err.message, code: err.code }
+      );
+      console.error(
+        `Video ${info.id} info:`,
+        JSON.stringify({
+          title: info.title,
+          uploader: info.uploader,
+          filesize: info.filesize,
+          url: info.webpage_url,
+          duration: info.duration,
+        })
       );
     } finally {
       fs.unlinkSync(output);
