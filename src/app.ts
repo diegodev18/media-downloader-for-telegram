@@ -14,9 +14,11 @@ Object.entries(commands).forEach(([command, { action }]) => {
   bot.command(command, action);
 });
 
-bot.on(message("text"), (ctx) => {
+bot.on(message("text"), async (ctx) => {
   try {
-    FormBot.download(ctx);
+    ctx.sendChatAction("typing");
+
+    await FormBot.download(ctx);
   } catch (err) {
     console.error("Error in FormBot.download:", err);
     ctx.reply(

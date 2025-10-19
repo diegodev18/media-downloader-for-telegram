@@ -25,12 +25,12 @@ Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
-  static download(
+  static async download(
     ctx: NarrowedContext<
       TelegrafContext,
       Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>
     >
-  ): void {
+  ): Promise<void> {
     const message: string = ctx.message?.text;
     if (!message) return;
 
@@ -39,46 +39,51 @@ ${command_list.join("\n")}`);
 
     const fromUsername = ctx.from.username;
 
-    ctx.sendChatAction("typing");
-
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
-    downloadVideo(message).then((videoData) => {
-      if (!videoData) {
-        ctx.reply(
-          "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
-        );
-        return;
-      }
+    const url = message.split(" ")[0];
+    const videoData = await downloadVideo(url);
 
-      const { output, dataLines } = videoData;
+    if (!videoData) {
+      ctx.reply(
+        "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+      );
+      console.error("Error al descargar el video:", message);
+      return;
+    }
+    const { output, info } = videoData;
 
-      ctx.reply("Descarga exitosa!\nEnviando...");
+    ctx.reply("Descarga exitosa! Preparando para enviar el video...");
 
-      ctx
-        .replyWithVideo(
-          {
-            source: fs.createReadStream(output),
-          },
-          {
-            caption: `Listo, ten el video que me pediste${
-              fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
-            }!`,
-          }
-        )
-        .then(() => {
-          ctx.reply(`Información del video:\n${dataLines.join("\n")}`);
+    if (info.filesize && info.filesize > 50 * 1024 * 1024) {
+      ctx.reply(
+        "❌ El archivo es demasiado grande para ser enviado por Telegram (más de 50 MB)."
+      );
+      console.error(`Archivo ${output} demasiado grande:`, info.filesize);
+      fs.unlinkSync(output);
+      return;
+    }
 
-          fs.rmSync(output);
-        })
-        .catch(() => {
-          ctx.reply(
-            "❌ Error al enviar el video. Probablemente se debe a que el video sea mayor a 50 MB."
-          );
+    ctx.reply("Enviando el video...");
+    ctx.sendChatAction("upload_video");
 
-          fs.rmSync(output);
-        });
-    });
+    try {
+      const fileStream = fs.createReadStream(output);
+
+      ctx.replyWithVideo(
+        { source: fileStream },
+        {
+          caption: `Listo, ten el video que me pediste${
+            fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
+          }!`,
+        }
+      );
+    } catch (err) {
+      ctx.reply(
+        "❌ Error al enviar el video. Es posible que el archivo sea demasiado grande para Telegram."
+      );
+      console.error("Error al enviar el video:", err);
+    }
   }
 
   static async info(ctx: Context) {
