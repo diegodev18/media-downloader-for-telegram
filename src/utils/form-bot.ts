@@ -4,7 +4,7 @@ import { downloadVideo, getDataLines } from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { TelegrafContext } from "@/types/telegraf";
-import type { Context, NarrowedContext } from "telegraf";
+import type { Context, NarrowedContext, TelegramError } from "telegraf";
 import type { Update, Message } from "telegraf/types";
 
 export class FormBot {
@@ -70,7 +70,7 @@ ${command_list.join("\n")}`);
     try {
       const fileStream = fs.createReadStream(output);
 
-      ctx.replyWithVideo(
+      const repliedData = await ctx.replyWithVideo(
         { source: fileStream },
         {
           caption: `Listo, ten el video que me pediste${
@@ -78,11 +78,25 @@ ${command_list.join("\n")}`);
           }!`,
         }
       );
-    } catch (err) {
-      ctx.reply(
-        "❌ Error al enviar el video. Es posible que el archivo sea demasiado grande para Telegram."
+
+      console.log(`Video enviado exitosamente a ${ctx.from.id}:`, {
+        message_id: repliedData.message_id,
+        file_id: repliedData.video?.file_id,
+      });
+    } catch (err: any) {
+      if (err?.code === 413) {
+        ctx.reply(
+          "❌ El archivo es demasiado grande para ser enviado por Telegram (más de 50 MB)."
+        );
+      } else {
+        ctx.reply("❌ Error al enviar el video.");
+      }
+      console.error(
+        "Error al enviar el video:",
+        err.response || { message: err.message, code: err.code }
       );
-      console.error("Error al enviar el video:", err);
+    } finally {
+      fs.unlinkSync(output);
     }
   }
 
@@ -91,6 +105,8 @@ ${command_list.join("\n")}`);
     if (ctx.message && "text" in ctx.message) {
       url = ctx.message.text.split(" ")[1];
     }
+
+    ctx.sendChatAction("typing");
 
     if (!url) {
       ctx.reply(
