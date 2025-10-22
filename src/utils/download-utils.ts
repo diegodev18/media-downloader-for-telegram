@@ -1,9 +1,15 @@
 import fs from "fs";
+import path from "path";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP, DESCRIPTION_MAX_LENGTH } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
 
 const { DIRECTORY_NAME } = YTDLP;
+
+const getOutputFilePath = () => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  return path.join(DIRECTORY_NAME, `${timestamp}.${YTDLP.EXTENSION}`);
+};
 
 export const downloadVideo = async (
   url: string
@@ -16,7 +22,7 @@ export const downloadVideo = async (
     fs.mkdirSync(DIRECTORY_NAME);
   }
 
-  const outputPath = `${DIRECTORY_NAME}/${Date.now()}.${YTDLP.EXTENSION}`;
+  const outputPath = getOutputFilePath();
 
   try {
     const info = await youtubedl(url, {
@@ -31,10 +37,11 @@ export const downloadVideo = async (
       dataLines: getDataLines(info, outputPath),
     };
   } catch (err) {
-    console.error("Error downloading video:", url, err);
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
     }
+
+    console.error("Error downloading video:", url, err);
     return null;
   }
 };

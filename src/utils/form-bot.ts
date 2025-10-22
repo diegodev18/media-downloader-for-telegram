@@ -25,7 +25,7 @@ Aquí tienes una lista de comandos que puedes usar:
 ${command_list.join("\n")}`);
   }
 
-  static async download(
+  static async sendDownloadedVideo(
     ctx: NarrowedContext<
       TelegrafContext,
       Update.MessageUpdate<Record<"text", {}> & Message.TextMessage>

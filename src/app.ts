@@ -18,7 +18,7 @@ bot.on(message("text"), async (ctx) => {
   try {
     ctx.sendChatAction("typing");
 
-    await FormBot.download(ctx);
+    await FormBot.sendDownloadedVideo(ctx);
   } catch (err) {
     console.error("Error in FormBot.download:", err);
     ctx.reply(
