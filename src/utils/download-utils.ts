@@ -29,7 +29,11 @@ export const downloadVideo = async (
       cookies: YTDLP.COOKIES_FILE,
       output: outputPath,
       format: YTDLP.FORMAT,
-    });
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      noCheckCertificates: true,
+      "extractor-args": "youtube:player_client=android,web",
+    } as any);
 
     return {
       output: outputPath,
