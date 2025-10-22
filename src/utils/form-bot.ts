@@ -48,7 +48,6 @@ ${command_list.join("\n")}`);
       ctx.reply(
         "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
       );
-      console.error("Error al descargar el video:", message);
       return;
     }
     const { output, info } = videoData;
