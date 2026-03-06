@@ -1,0 +1,8 @@
+# Media Downloader for Telegram - Nixpacks
+# Node + TypeScript build, runtime: yt-dlp + ffmpeg
+
+[phases.setup]
+nixPkgs = ["...", "ffmpeg", "yt-dlp"]
+
+[start]
+cmd = "pnpm start"
