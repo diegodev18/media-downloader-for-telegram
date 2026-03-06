@@ -4,9 +4,18 @@ if (NODE_ENV !== "production" && process.loadEnvFile) {
   process.loadEnvFile(".env");
 }
 
-export const {
-  BOT_TOKEN
-} = process.env;
+export const { BOT_TOKEN, ALLOWED_CHAT_IDS: ALLOWED_CHAT_IDS_RAW } = process.env;
+
+/**
+ * IDs de chat permitidos (usuarios o grupos). Si no está definido o está vacío, se permiten todos.
+ * Formato: números separados por comas, ej. "123456789,-987654321"
+ */
+export const ALLOWED_CHAT_IDS: Set<number> | null = (() => {
+  if (!ALLOWED_CHAT_IDS_RAW?.trim()) return null;
+  return new Set(
+    ALLOWED_CHAT_IDS_RAW.split(",").map((s) => parseInt(s.trim(), 10)).filter((n) => !Number.isNaN(n))
+  );
+})();
 
 export const YTDLP = {
   BINARY_PATH: "yt-dlp",

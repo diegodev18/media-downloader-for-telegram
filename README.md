@@ -41,6 +41,8 @@ A Telegram bot that allows users to download media from various social networks 
    ```bash
    BOT_TOKEN="<your_bot_token>"
    COOKIES="<your_youtube_cookies>"
+   # Opcional: restringir el bot a ciertos chats (IDs separados por comas)
+   # ALLOWED_CHAT_IDS="123456789,-987654321"
    ```
 
 5. Start the bot:

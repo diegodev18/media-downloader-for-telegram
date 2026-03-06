@@ -2,8 +2,9 @@ import { message } from "telegraf/filters";
 import { bot } from "@/lib/telegraf-bot";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
-import { logRequest } from "@/lib/middlewares";
+import { allowChatIds, logRequest } from "@/lib/middlewares";
 
+bot.use(allowChatIds);
 bot.use(logRequest);
 
 bot.start(FormBot.start);

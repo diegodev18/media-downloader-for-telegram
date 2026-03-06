@@ -7,4 +7,5 @@ services:
     environment:
       - BOT_TOKEN
       - COOKIES
+      - ALLOWED_CHAT_IDS
     restart: unless-stopped
