@@ -23,10 +23,12 @@ export const downloadVideo = async (
   }
 
   const outputPath = getOutputFilePath();
+  const cookiesOpt =
+    fs.existsSync(YTDLP.COOKIES_FILE) ? { cookies: YTDLP.COOKIES_FILE } : {};
 
   try {
     const info = await youtubedl(url, {
-      cookies: YTDLP.COOKIES_FILE,
+      ...cookiesOpt,
       output: outputPath,
       format: YTDLP.FORMAT,
       userAgent:
@@ -40,12 +42,13 @@ export const downloadVideo = async (
       info,
       dataLines: getDataLines(info, outputPath),
     };
-  } catch (err) {
+  } catch (err: unknown) {
     if (fs.existsSync(outputPath)) {
       fs.unlinkSync(outputPath);
     }
 
-    console.error("Error downloading video:", url, err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error("Error downloading video:", url, errMsg, err);
     return null;
   }
 };

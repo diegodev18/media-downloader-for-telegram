@@ -4,8 +4,25 @@ import { downloadVideo, getDataLines } from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { TelegrafContext } from "@/types/telegraf";
-import type { Context, NarrowedContext, TelegramError } from "telegraf";
+import type { Context, NarrowedContext } from "telegraf";
 import type { Update, Message } from "telegraf/types";
+
+/**
+ * Extrae un identificador del vídeo desde la URL para mostrar en mensajes.
+ * YouTube: usa el parámetro ?v=; otras URLs: último segmento del path o host.
+ */
+function getVideoIdFromUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const v = parsed.searchParams.get("v");
+    if (v) return v;
+    const pathSegments = parsed.pathname.split("/").filter(Boolean);
+    if (pathSegments.length > 0) return pathSegments[pathSegments.length - 1];
+    return parsed.hostname || "—";
+  } catch {
+    return "—";
+  }
+}
 
 export class FormBot {
   static start(ctx: Context) {
@@ -34,17 +51,31 @@ ${command_list.join("\n")}`);
     const message: string = ctx.message?.text;
     if (!message) return;
 
-    const domain = message.split("/")[2];
-    const videoId = message.split("/")[4];
-
+    const url = message.split(" ")[0];
+    let domain: string;
+    try {
+      domain = new URL(url).hostname || url;
+    } catch {
+      domain = url;
+    }
+    const videoId = getVideoIdFromUrl(url);
     const fromUsername = ctx.from.username;
 
     ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
 
-    const url = message.split(" ")[0];
-    const videoData = await downloadVideo(url);
+    let videoData;
+    try {
+      videoData = await downloadVideo(url);
+    } catch (err) {
+      console.error("Error en downloadVideo (excepción):", url, err);
+      ctx.reply(
+        "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+      );
+      return;
+    }
 
     if (!videoData) {
+      console.error("Error al descargar el video (downloadVideo devolvió null):", url);
       ctx.reply(
         "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
       );
@@ -126,8 +157,11 @@ ${command_list.join("\n")}`);
 
     ctx.reply("Obteniendo información del video...");
 
+    const cookiesOpt = fs.existsSync(YTDLP_CONFIG.COOKIES_FILE)
+      ? { cookies: YTDLP_CONFIG.COOKIES_FILE }
+      : {};
     youtubedl(url, {
-      cookies: YTDLP_CONFIG.COOKIES_FILE,
+      ...cookiesOpt,
       dumpSingleJson: true,
       noWarnings: true,
       preferFreeFormats: true,
