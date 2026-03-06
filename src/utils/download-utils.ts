@@ -27,15 +27,19 @@ export const downloadVideo = async (
     fs.existsSync(YTDLP.COOKIES_FILE) ? { cookies: YTDLP.COOKIES_FILE } : {};
 
   try {
-    const info = await youtubedl(url, {
+    const baseOpts = {
       ...cookiesOpt,
       output: outputPath,
       format: YTDLP.FORMAT,
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       noCheckCertificates: true,
-      "extractor-args": "youtube:player_client=android,web",
-    } as any);
+    };
+    const opts =
+      Object.keys(cookiesOpt).length > 0
+        ? baseOpts
+        : { ...baseOpts, "extractor-args": "youtube:player_client=android,web" as const };
+    const info = await youtubedl(url, opts as Parameters<typeof youtubedl>[1]);
 
     return {
       output: outputPath,

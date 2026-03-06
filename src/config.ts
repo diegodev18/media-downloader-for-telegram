@@ -20,7 +20,9 @@ export const ALLOWED_CHAT_IDS: Set<number> | null = (() => {
 export const YTDLP = {
   BINARY_PATH: "yt-dlp",
   COOKIES_FILE: "dist/cookies.txt",
-  FORMAT: "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
+  /** Prefer mp4+m4a; fallback to best video+audio merged to mp4 (e.g. when only webm is available). */
+  FORMAT:
+    "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4/bestvideo+bestaudio/mp4",
   EXTENSION: "mp4",
   DIRECTORY_NAME: "vids"
 };
