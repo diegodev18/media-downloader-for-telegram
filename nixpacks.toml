@@ -2,7 +2,8 @@
 # Node + TypeScript build, runtime: yt-dlp + ffmpeg
 
 [phases.setup]
-nixPkgs = ["...", "ffmpeg", "yt-dlp"]
+# python3: requerido por el preinstall de yt-dlp-exec (solo en build)
+nixPkgs = ["...", "ffmpeg", "yt-dlp", "python3"]
 
 [start]
 cmd = "pnpm start"
