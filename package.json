@@ -4,6 +4,9 @@
   "packageManager": "pnpm@9.14.2",
   "description": "Media downloader bot for Telegram using Node.js",
   "main": "src/app.js",
+  "pnpm": {
+    "neverBuiltDependencies": ["yt-dlp-exec"]
+  },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
