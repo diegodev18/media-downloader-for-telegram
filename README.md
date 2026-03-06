@@ -1,92 +1,115 @@
-
 # Media Downloader for Telegram
 
-A Telegram bot that allows users to download media from various social networks by simply sending a link. The bot supports multiple platforms and provides an easy-to-use interface for downloading content directly within Telegram.
+Bot de Telegram que permite descargar vídeos desde redes sociales enviando un enlace. Usa **yt-dlp** para soportar múltiples plataformas y envía el archivo directamente en el chat (hasta 50 MB).
 
-## Features
+## Características
 
-- Download videos from popular social media platforms.
-- Simple and intuitive commands.
-- Supports various video formats and qualities.
-- Built with TypeScript and Telegraf.
+- **Descarga de vídeos**: Envía un enlace y recibe el vídeo en MP4.
+- **Múltiples plataformas**: Cualquier sitio soportado por [yt-dlp](https://github.com/yt-dlp/yt-dlp) (YouTube, Twitter/X, Instagram, TikTok, etc.).
+- **Comandos**: `/start`, `/help`, `/info <enlace>` para ver metadatos sin descargar.
+- **Opcional**: Restricción por IDs de chat (`ALLOWED_CHAT_IDS`) para uso privado.
+- **Stack**: TypeScript, [Telegraf](https://telegraf.js.org/), [yt-dlp-exec](https://github.com/nickel-org/yt-dlp-exec).
 
-## Installation for Development
+## Requisitos previos
 
-1. Clone the repository:
+- **Node.js** 18+ (recomendado 22)
+- **pnpm** (gestor de paquetes del proyecto)
+- **ffmpeg** y **yt-dlp** (en producción/Docker se instalan automáticamente)
+- Token de bot de Telegram ([@BotFather](https://t.me/BotFather))
+- Cookies de YouTube (opcional, para vídeos con restricciones de edad o región)
+
+## Instalación (desarrollo)
+
+1. **Clonar el repositorio**
 
    ```bash
    git clone https://github.com/diegodev18/media-downloader-for-telegram.git
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
    cd media-downloader-for-telegram
    ```
 
-3. Install the dependencies:
+2. **Instalar dependencias**
 
    ```bash
    pnpm install
    ```
 
-   if you don't have `pnpm` installed, you can install it globally using:
+   Si no tienes pnpm: `npm install -g pnpm`
 
-   ```bash
-   npm install -g pnpm
-   ```
+3. **Configurar variables de entorno**
 
-4. Set up your Telegram bot token and YouTube cookies in a `.env` file:
+   Copia `.env.example` a `.env` y rellena los valores:
 
-   ```bash
-   BOT_TOKEN="<your_bot_token>"
-   COOKIES="<your_youtube_cookies>"
-   # Opcional: restringir el bot a ciertos chats (IDs separados por comas)
-   # ALLOWED_CHAT_IDS="123456789,-987654321"
-   ```
+   | Variable           | Requerido | Descripción |
+   |--------------------|-----------|-------------|
+   | `BOT_TOKEN`        | Sí        | Token del bot (BotFather) |
+   | `COOKIES`          | No        | Cookies de YouTube en formato Netscape (para vídeos restringidos) |
+   | `ALLOWED_CHAT_IDS` | No        | IDs de chat permitidos separados por comas; si no se define, el bot acepta todos |
 
-5. Start the bot:
+4. **Arrancar en modo desarrollo**
 
    ```bash
    pnpm run dev
    ```
 
-## Installation for Production
+   (Usa `nodemon` para recargar al cambiar código.)
 
-1. Clone the repository:
+## Uso
 
-   ```bash
-   git clone https://github.com/diegodev18/media-downloader-for-telegram.git
-   ```
+- **Descargar**: Envía al bot un mensaje de texto con solo la URL del vídeo (ej. `https://www.youtube.com/watch?v=...`).
+- **Información**: `/info <url>` para ver título, duración, canal, etc., sin descargar.
+- **Ayuda**: `/help` lista los comandos disponibles.
 
-2. Navigate to the project directory:
+**Límite**: Telegram permite archivos de hasta 50 MB; vídeos más grandes se rechazan con un mensaje de error.
 
-   ```bash
-   cd media-downloader-for-telegram
-   ```
+## Producción
 
-3. Build docker image:
+### Con Docker
 
-   ```bash
-   docker build -t media-downloader-for-telegram .
-   ```
+```bash
+docker build -t media-downloader-for-telegram .
+docker run -d --name media-downloader-for-telegram \
+  -e BOT_TOKEN="<tu_token>" \
+  -e COOKIES="<cookies_opcional>" \
+  -e ALLOWED_CHAT_IDS="123456789" \
+  media-downloader-for-telegram
+```
 
-4. Run the bot:
+### Con Docker Compose
 
-   ```bash
-   docker run -d --name media-downloader-for-telegram -e BOT_TOKEN="<your_bot_token>" -e COOKIES="<your_youtube_cookies>" media-downloader-for-telegram
-   ```
+Ajusta las variables en tu entorno o en un `.env` en la raíz y ejecuta:
 
-## Usage
+```bash
+docker compose up -d
+```
 
-- Send a link to a media file to the bot.
-- Use the `/help` command to see a list of available commands.
-- Enjoy downloading media directly within Telegram!
+Las variables `BOT_TOKEN`, `COOKIES` y `ALLOWED_CHAT_IDS` se leen del entorno.
 
-## Contributing
+### Despliegue (Nixpacks)
 
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+El proyecto incluye `nixpacks.toml` para entornos compatibles (p. ej. Railway): se instalan Node, ffmpeg, yt-dlp y Python. El comando de inicio es `pnpm start`.
 
-## License
+## Scripts disponibles
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+| Comando           | Descripción                |
+|-------------------|----------------------------|
+| `pnpm run dev`    | Desarrollo con recarga     |
+| `pnpm run build`  | Compila TypeScript a `dist/` |
+| `pnpm start`      | Ejecuta `dist/app.js`      |
+| `pnpm test`       | Tests con Jest             |
+| `pnpm run test:coverage` | Tests con cobertura  |
+
+## Cookies de YouTube
+
+Para vídeos con restricción de edad o región hace falta un archivo de cookies en formato Netscape:
+
+1. Usa una extensión del navegador (p. ej. "Get cookies.txt") o exporta desde las devtools.
+2. En desarrollo: guarda el contenido en `dist/cookies.txt` (se usa la ruta definida en `config.ts`).
+3. En Docker: pasa el contenido en la variable de entorno `COOKIES`; la imagen escribe `dist/cookies.txt` al arrancar.
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Abre un issue o un pull request para mejoras o correcciones.
+
+## Licencia
+
+MIT. Ver [LICENSE](LICENSE).
