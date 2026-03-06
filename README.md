@@ -106,6 +106,8 @@ Para vídeos con restricción de edad o región hace falta un archivo de cookies
 2. En desarrollo: guarda el contenido en `dist/cookies.txt` (se usa la ruta definida en `config.ts`).
 3. En Docker: pasa el contenido en la variable de entorno `COOKIES`; la imagen escribe `dist/cookies.txt` al arrancar.
 
+**Importante:** Las cookies de YouTube caducan o se rotan con el tiempo. Si ves errores como "cookies are no longer valid" o "Sign in to confirm you're not a bot", exporta de nuevo las cookies desde tu navegador y actualiza `dist/cookies.txt` o la variable `COOKIES`.
+
 ## Contribuir
 
 Las contribuciones son bienvenidas. Abre un issue o un pull request para mejoras o correcciones.

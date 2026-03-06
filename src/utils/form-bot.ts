@@ -1,6 +1,10 @@
 import fs from "fs";
 import { commands } from "@/consts/commands";
-import { downloadVideo, getDataLines } from "@/utils/download-utils";
+import {
+  downloadVideo,
+  getDataLines,
+  YouTubeCookiesError,
+} from "@/utils/download-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP as YTDLP_CONFIG } from "@/config";
 import type { TelegrafContext } from "@/types/telegraf";
@@ -67,6 +71,10 @@ ${command_list.join("\n")}`);
     try {
       videoData = await downloadVideo(url);
     } catch (err) {
+      if (err instanceof YouTubeCookiesError) {
+        ctx.reply(`❌ ${err.message}`);
+        return;
+      }
       console.error("Error en downloadVideo (excepción):", url, err);
       ctx.reply(
         "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
