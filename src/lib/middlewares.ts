@@ -11,7 +11,6 @@ function trimToWindow(timestamps: number[], windowMs: number): number[] {
 }
 
 export const allowChatIds = async (ctx: TelegrafContext, next: () => Promise<void>) => {
-  if (ALLOWED_CHAT_IDS === null) return next();
   const chatId = ctx.chat?.id;
   if (chatId === undefined || !ALLOWED_CHAT_IDS.has(chatId)) {
     await ctx.reply("No estás autorizado para usar este bot.");

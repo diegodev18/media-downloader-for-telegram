@@ -7,14 +7,28 @@ if (NODE_ENV !== "production" && process.loadEnvFile) {
 export const { BOT_TOKEN, ALLOWED_CHAT_IDS: ALLOWED_CHAT_IDS_RAW } = process.env;
 
 /**
- * IDs de chat permitidos (usuarios o grupos). Si no está definido o está vacío, se permiten todos.
+ * IDs de chat permitidos (usuarios o grupos). Obligatorio: sin esto el proceso no arranca.
  * Formato: números separados por comas, ej. "123456789,-987654321"
  */
-export const ALLOWED_CHAT_IDS: Set<number> | null = (() => {
-  if (!ALLOWED_CHAT_IDS_RAW?.trim()) return null;
-  return new Set(
-    ALLOWED_CHAT_IDS_RAW.split(",").map((s) => parseInt(s.trim(), 10)).filter((n) => !Number.isNaN(n))
+export const ALLOWED_CHAT_IDS: Set<number> = (() => {
+  const raw = ALLOWED_CHAT_IDS_RAW?.trim();
+  if (!raw) {
+    throw new Error(
+      "ALLOWED_CHAT_IDS es obligatorio en las variables de entorno. Define al menos un ID de chat permitido."
+    );
+  }
+  const ids = new Set(
+    raw
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !Number.isNaN(n))
   );
+  if (ids.size === 0) {
+    throw new Error(
+      "ALLOWED_CHAT_IDS no contiene ningún ID numérico válido (usa números separados por comas)."
+    );
+  }
+  return ids;
 })();
 
 export const YTDLP = {
