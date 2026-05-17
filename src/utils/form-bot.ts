@@ -126,6 +126,24 @@ ${command_list.join("\n")}`);
     }
     const { output, info } = videoData;
 
+    // Validate file exists and has content before attempting upload
+    if (!fs.existsSync(output)) {
+      console.error("Downloaded file does not exist:", output, "url:", url);
+      ctx.reply(
+        "❌ Error al descargar el video: el archivo no se encontró después de la descarga."
+      );
+      return false;
+    }
+    const fileStats = fs.statSync(output);
+    if (fileStats.size === 0) {
+      console.error("Downloaded file is empty:", output, "url:", url);
+      ctx.reply(
+        "❌ Error al descargar el video: el archivo descargado está vacío."
+      );
+      fs.unlinkSync(output);
+      return false;
+    }
+
     ctx.reply("Descarga exitosa! Preparando para enviar el video...");
 
     const maxSize = 50 * 1024 * 1024;
@@ -149,16 +167,40 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("upload_video");
 
     try {
-      const fileStream = fs.createReadStream(output);
-
-      const repliedData = await ctx.replyWithVideo(
-        { source: fileStream },
-        {
-          caption: `Listo, ten el video que me pediste${
-            fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
-          }!`,
+      const sendWithRetry = async (
+        outputPath: string,
+        retries = 2
+      ): Promise<Message.VideoMessage> => {
+        let lastErr: Error | undefined;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            const fileStream = fs.createReadStream(outputPath);
+            return await ctx.replyWithVideo(
+              { source: fileStream },
+              {
+                caption: `Listo, ten el video que me pediste${
+                  fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
+                }!`,
+              }
+            );
+          } catch (err: any) {
+            lastErr = err;
+            const isRetryable =
+              err?.code === "ECONNRESET" ||
+              err?.code === "ETIMEDOUT" ||
+              err?.code === "ECONNABORTED" ||
+              err?.message?.includes("socket hang up");
+            if (!isRetryable || attempt === retries) throw err;
+            console.warn(
+              `Upload attempt ${attempt + 1} failed (${err?.code}), retrying...`
+            );
+            await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          }
         }
-      );
+        throw lastErr!;
+      };
+
+      const repliedData = await sendWithRetry(output);
 
       console.log(`Video enviado exitosamente a ${ctx.from.id}:`, {
         message_id: repliedData.message_id,
@@ -193,17 +235,17 @@ ${command_list.join("\n")}`);
         ctx.reply("❌ Error al enviar el video.");
       }
       console.error(
-        `Error al enviar el video ${info.id}:`,
+        `Error al enviar el video ${info?.id ?? "(sin id)"}:`,
         err.response || { message: err.message, code: err.code }
       );
       console.error(
-        `Video ${info.id} info:`,
+        `Video ${info?.id ?? "(sin id)"} info:`,
         JSON.stringify({
-          title: info.title,
-          uploader: info.uploader,
-          filesize: info.filesize,
-          url: info.webpage_url,
-          duration: info.duration,
+          title: info?.title,
+          uploader: info?.uploader,
+          filesize: info?.filesize,
+          url: info?.webpage_url,
+          duration: info?.duration,
         })
       );
       const chatId = ctx.chat?.id;
