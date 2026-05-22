@@ -178,7 +178,47 @@ ${command_list.join("\n")}
     ctx.reply("📤 Enviando el video...");
     ctx.sendChatAction("upload_video");
 
+    const caption = `🎬 ¡Aquí tienes tu video${
+      fromUsername ? `, @${fromUsername}` : `, ${ctx.from.first_name}`
+    }! ✨`;
+
+    const handleSuccess = async (repliedData: Message.VideoMessage) => {
+      logger.ok(`Video enviado | chatId: ${ctx.from.id} | msgId: ${repliedData.message_id} | fileId: ${repliedData.video?.file_id ?? "—"}`);
+      const chatId = ctx.chat?.id;
+      if (chatId !== undefined) statsStore.recordDownload(chatId);
+
+      if (CHANNEL_ID) {
+        try {
+          await ctx.telegram.sendVideo(
+            CHANNEL_ID,
+            repliedData.video!.file_id,
+            {
+              caption: info.title
+                ? `📎 ${info.title}`
+                : `Enviado desde chat ${ctx.chat?.id}`,
+            }
+          );
+        } catch (channelErr) {
+          logger.error("Error al reenviar al canal:", channelErr);
+        }
+      }
+    };
+
     try {
+      // Try URL-based send first: Telegram downloads from CDN, no upload from bot.
+      // Falls back to buffer upload if the CDN URL is unavailable or Telegram rejects it.
+      const directUrl = await getDirectUrl(url).catch(() => null);
+      if (directUrl) {
+        try {
+          logger.dl(`Enviando por URL directa | chatId: ${ctx.chat?.id}`);
+          const repliedData = await ctx.replyWithVideo(directUrl, { caption });
+          await handleSuccess(repliedData);
+          return true;
+        } catch (urlErr: any) {
+          logger.warn(`URL directa falló, usando buffer | error: ${urlErr?.message ?? urlErr?.code}`, urlErr);
+        }
+      }
+
       const fileBuffer = fs.readFileSync(output);
 
       const sendWithRetry = async (
@@ -189,11 +229,7 @@ ${command_list.join("\n")}
           try {
             return await ctx.replyWithVideo(
               { source: fileBuffer, filename: "video.mp4" },
-              {
-                caption: `🎬 ¡Aquí tienes tu video${
-                  fromUsername ? `, @${fromUsername}` : `, ${ctx.from.first_name}`
-                }! ✨`,
-              }
+              { caption }
             );
           } catch (err: any) {
             lastErr = err;
@@ -211,26 +247,7 @@ ${command_list.join("\n")}
       };
 
       const repliedData = await sendWithRetry();
-
-      logger.ok(`Video enviado | chatId: ${ctx.from.id} | msgId: ${repliedData.message_id} | fileId: ${repliedData.video?.file_id ?? "—"}`);
-      const chatId = ctx.chat?.id;
-      if (chatId !== undefined) statsStore.recordDownload(chatId);
-
-      if (CHANNEL_ID) {
-        try {
-          await ctx.telegram.sendVideo(
-            CHANNEL_ID,
-            { source: fileBuffer, filename: "video.mp4" },
-            {
-              caption: info.title
-                ? `📎 ${info.title}`
-                : `Enviado desde chat ${ctx.chat?.id}`,
-            }
-          );
-        } catch (channelErr) {
-          logger.error("Error al reenviar al canal:", channelErr);
-        }
-      }
+      await handleSuccess(repliedData);
       return true;
     } catch (err: any) {
       if (err?.code === 413) {
