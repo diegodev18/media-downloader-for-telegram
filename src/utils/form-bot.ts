@@ -179,16 +179,16 @@ ${command_list.join("\n")}
     ctx.sendChatAction("upload_video");
 
     try {
+      const fileBuffer = fs.readFileSync(output);
+
       const sendWithRetry = async (
-        outputPath: string,
         retries = 2
       ): Promise<Message.VideoMessage> => {
         let lastErr: Error | undefined;
         for (let attempt = 0; attempt <= retries; attempt++) {
           try {
-            const fileStream = fs.createReadStream(outputPath);
             return await ctx.replyWithVideo(
-              { source: fileStream },
+              { source: fileBuffer, filename: "video.mp4" },
               {
                 caption: `🎬 ¡Aquí tienes tu video${
                   fromUsername ? `, @${fromUsername}` : `, ${ctx.from.first_name}`
@@ -210,7 +210,7 @@ ${command_list.join("\n")}
         throw lastErr!;
       };
 
-      const repliedData = await sendWithRetry(output);
+      const repliedData = await sendWithRetry();
 
       logger.ok(`Video enviado | chatId: ${ctx.from.id} | msgId: ${repliedData.message_id} | fileId: ${repliedData.video?.file_id ?? "—"}`);
       const chatId = ctx.chat?.id;
@@ -218,10 +218,9 @@ ${command_list.join("\n")}
 
       if (CHANNEL_ID) {
         try {
-          const channelStream = fs.createReadStream(output);
           await ctx.telegram.sendVideo(
             CHANNEL_ID,
-            { source: channelStream },
+            { source: fileBuffer, filename: "video.mp4" },
             {
               caption: info.title
                 ? `📎 ${info.title}`
