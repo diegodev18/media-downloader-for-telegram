@@ -1,6 +1,7 @@
 import type { TelegrafContext } from "@/types/telegraf";
 import { ALLOWED_CHAT_IDS, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "@/config";
 import { extractUrls } from "@/utils/url-utils";
+import { logger } from "@/lib/logger";
 
 /** Por chat: lista de timestamps de descargas en la ventana actual. */
 const rateLimitStore = new Map<number, number[]>();
@@ -13,6 +14,7 @@ function trimToWindow(timestamps: number[], windowMs: number): number[] {
 export const allowChatIds = async (ctx: TelegrafContext, next: () => Promise<void>) => {
   const chatId = ctx.chat?.id;
   if (chatId === undefined || !ALLOWED_CHAT_IDS.has(chatId)) {
+    logger.warn(`Acceso denegado | chatId: ${chatId ?? "desconocido"} | usuario: ${ctx.from?.username ?? ctx.from?.id ?? "?"}`);
     await ctx.reply("🚫 No estás autorizado para usar este bot.");
     return;
   }
@@ -25,12 +27,11 @@ export const logRequest = (ctx: TelegrafContext, next: () => Promise<void>) => {
     command =
       command !== "N/A" ? command.slice(0, command.indexOf(" ") + 1) : command;
   }
-  const requestFrom =
-    ctx.from?.username || ctx.from?.first_name || "Unknown";
+  const requestFrom = ctx.from?.username
+    ? `@${ctx.from.username}`
+    : ctx.from?.first_name ?? "desconocido";
 
-  console.log(
-    `Request received. From: ${requestFrom}, Chat ID: ${ctx.chat?.id}, Command: ${command[0] === "/" ? command : "N/A"}`
-  );
+  logger.req(`De: ${requestFrom} (${ctx.chat?.id}) | ${command[0] === "/" ? command.trim() : "mensaje"}`);
   next();
 };
 
@@ -61,6 +62,7 @@ export const rateLimitDownloads = async (
   rateLimitStore.set(chatId, timestamps);
 
   if (timestamps.length >= RATE_LIMIT_MAX) {
+    logger.warn(`Rate limit alcanzado | chatId: ${chatId} | descargas en ventana: ${timestamps.length}`);
     await ctx.reply(
       `⏳ Has alcanzado el límite de ${RATE_LIMIT_MAX} descargas en esta ventana de tiempo. Vuelve a intentarlo más tarde.`
     );

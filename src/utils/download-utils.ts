@@ -3,6 +3,7 @@ import path from "path";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP, DESCRIPTION_MAX_LENGTH } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
+import { logger } from "@/lib/logger";
 
 /** Error cuando YouTube rechaza la descarga por cookies inválidas o detección de bot. */
 export class YouTubeCookiesError extends Error {
@@ -94,7 +95,7 @@ export const downloadVideo = async (
       );
     }
 
-    console.error("Error downloading video:", url, errMsg, err);
+    logger.error(`Error al descargar video | url: ${url} | ${errMsg}`);
     return null;
   }
 };
@@ -226,7 +227,7 @@ export async function downloadAudio(
         "YouTube ha rechazado la descarga: las cookies han caducado o te pide iniciar sesión. Exporta de nuevo las cookies desde tu navegador (formato Netscape) y actualiza la variable COOKIES o el archivo dist/cookies.txt."
       );
     }
-    console.error("Error downloading audio:", url, errMsg, err);
+    logger.error(`Error al descargar audio | url: ${url} | ${errMsg}`);
     return null;
   }
 }
@@ -256,7 +257,7 @@ export async function downloadThumbnail(url: string): Promise<string | null> {
     return null;
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err);
-    console.error("Error downloading thumbnail:", url, errMsg);
+    logger.error(`Error al descargar miniatura | url: ${url} | ${errMsg}`);
     const files = fs.readdirSync(DIRECTORY_NAME).filter((f) => f.startsWith(prefix));
     for (const f of files) fs.unlinkSync(path.join(DIRECTORY_NAME, f));
     return null;

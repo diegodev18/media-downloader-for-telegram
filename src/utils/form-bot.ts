@@ -1,4 +1,5 @@
 import fs from "fs";
+import { logger, fmtBytes, fmtMs } from "@/lib/logger";
 import { commands } from "@/consts/commands";
 import {
   downloadVideo,
@@ -104,8 +105,10 @@ ${command_list.join("\n")}
     const videoId = getVideoIdFromUrl(url);
     const fromUsername = ctx.from.username;
 
+    logger.dl(`Iniciando descarga | url: ${url} | perfil: ${formatProfile ?? "default"} | chatId: ${ctx.chat?.id}`);
     ctx.reply(`⬇️ Descargando video...\n🌐 Plataforma: ${domain}\n🔑 ID: ${videoId}`);
 
+    const dlStart = Date.now();
     let videoData;
     try {
       videoData = await downloadVideo(url, {
@@ -113,10 +116,11 @@ ${command_list.join("\n")}
       });
     } catch (err) {
       if (err instanceof YouTubeCookiesError) {
+        logger.error(`Cookies de YouTube inválidas | url: ${url}`);
         ctx.reply(`❌ ${err.message}`);
         return false;
       }
-      console.error("Error en downloadVideo (excepción):", url, err);
+      logger.error(`Excepción al descargar video | url: ${url}`, err);
       ctx.reply(
         "❌ No se pudo descargar el video. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
@@ -124,7 +128,7 @@ ${command_list.join("\n")}
     }
 
     if (!videoData) {
-      console.error("Error al descargar el video (downloadVideo devolvió null):", url);
+      logger.error(`downloadVideo devolvió null | url: ${url}`);
       ctx.reply(
         "❌ No se pudo descargar el video. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
@@ -132,9 +136,8 @@ ${command_list.join("\n")}
     }
     const { output, info } = videoData;
 
-    // Validate file exists and has content before attempting upload
     if (!fs.existsSync(output)) {
-      console.error("Downloaded file does not exist:", output, "url:", url);
+      logger.error(`Archivo no encontrado tras descarga | path: ${output} | url: ${url}`);
       ctx.reply(
         "❌ Error interno: el archivo no se encontró tras la descarga."
       );
@@ -142,7 +145,7 @@ ${command_list.join("\n")}
     }
     const fileStats = fs.statSync(output);
     if (fileStats.size === 0) {
-      console.error("Downloaded file is empty:", output, "url:", url);
+      logger.error(`Archivo vacío tras descarga | path: ${output} | url: ${url}`);
       ctx.reply(
         "❌ Error interno: el archivo descargado está vacío."
       );
@@ -150,11 +153,13 @@ ${command_list.join("\n")}
       return false;
     }
 
+    logger.dl(`Descarga completa | tamaño: ${fmtBytes(fileStats.size)} | tiempo: ${fmtMs(Date.now() - dlStart)} | título: "${info.title ?? "—"}"`);
     ctx.reply("✅ ¡Descarga completada! Preparando el envío...");
 
     const maxSize = 50 * 1024 * 1024;
     const actualSize = fileStats.size;
     if ((info.filesize ?? actualSize) > maxSize) {
+      logger.warn(`Archivo demasiado grande | tamaño: ${fmtBytes(info.filesize ?? actualSize)} | url: ${url}`);
       let directUrl: string | null = null;
       try {
         directUrl = await getDirectUrl(url);
@@ -165,11 +170,11 @@ ${command_list.join("\n")}
         "❌ El archivo pesa más de 50 MB y no puede enviarse por Telegram." +
           (directUrl ? `\n\n📎 Descárgalo manualmente:\n${directUrl}` : "")
       );
-      console.error(`Archivo ${output} demasiado grande:`, info.filesize ?? actualSize);
       fs.unlinkSync(output);
       return false;
     }
 
+    logger.dl(`Enviando video a Telegram | chatId: ${ctx.chat?.id} | tamaño: ${fmtBytes(actualSize)}`);
     ctx.reply("📤 Enviando el video...");
     ctx.sendChatAction("upload_video");
 
@@ -198,9 +203,7 @@ ${command_list.join("\n")}
               err?.code === "ECONNABORTED" ||
               err?.message?.includes("socket hang up");
             if (!isRetryable || attempt === retries) throw err;
-            console.warn(
-              `Upload attempt ${attempt + 1} failed (${err?.code}), retrying...`
-            );
+            logger.warn(`Reintento de subida ${attempt + 1}/${retries} | error: ${err?.code ?? err?.message}`);
             await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
           }
         }
@@ -209,10 +212,7 @@ ${command_list.join("\n")}
 
       const repliedData = await sendWithRetry(output);
 
-      console.log(`Video enviado exitosamente a ${ctx.from.id}:`, {
-        message_id: repliedData.message_id,
-        file_id: repliedData.video?.file_id,
-      });
+      logger.ok(`Video enviado | chatId: ${ctx.from.id} | msgId: ${repliedData.message_id} | fileId: ${repliedData.video?.file_id ?? "—"}`);
       const chatId = ctx.chat?.id;
       if (chatId !== undefined) statsStore.recordDownload(chatId);
 
@@ -229,7 +229,7 @@ ${command_list.join("\n")}
             }
           );
         } catch (channelErr) {
-          console.error("Error al reenviar al canal:", channelErr);
+          logger.error("Error al reenviar al canal:", channelErr);
         }
       }
       return true;
@@ -241,19 +241,8 @@ ${command_list.join("\n")}
       } else {
         ctx.reply("❌ No se pudo enviar el video. Inténtalo más tarde.");
       }
-      console.error(
-        `Error al enviar el video ${info?.id ?? "(sin id)"}:`,
-        err.response || { message: err.message, code: err.code }
-      );
-      console.error(
-        `Video ${info?.id ?? "(sin id)"} info:`,
-        JSON.stringify({
-          title: info?.title,
-          uploader: info?.uploader,
-          filesize: info?.filesize,
-          url: info?.webpage_url,
-          duration: info?.duration,
-        })
+      logger.error(
+        `Error al enviar video | id: ${info?.id ?? "—"} | code: ${err?.code ?? "?"} | título: "${info?.title ?? "—"}" | tamaño: ${info?.filesize ? fmtBytes(info.filesize) : "?"} | duración: ${info?.duration ?? "?"}s`
       );
       const chatId = ctx.chat?.id;
       if (chatId !== undefined)
@@ -324,8 +313,8 @@ ${command_list.join("\n")}
         );
       })
       .catch((err) => {
+        logger.error(`/info error | url: ${url} | ${err.message}`);
         ctx.reply("❌ No se pudo obtener información. Verifica que el enlace sea válido.");
-        console.error("/info", err.message);
       });
   }
 
@@ -351,7 +340,7 @@ ${command_list.join("\n")}
         ctx.reply(`❌ ${err.message}`);
         return;
       }
-      console.error("Error en downloadAudio:", url, err);
+      logger.error(`Excepción al descargar audio | url: ${url}`, err);
       ctx.reply(
         "❌ No se pudo descargar el audio. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
@@ -386,9 +375,10 @@ ${command_list.join("\n")}
           caption: `🎵 ¡Audio listo${ctx.from?.username ? `, @${ctx.from.username}` : ""}!`,
         }
       );
+      logger.ok(`Audio enviado | chatId: ${ctx.chat?.id} | título: "${info.title ?? "—"}"`);
     } catch (err) {
+      logger.error(`Error al enviar audio | chatId: ${ctx.chat?.id}`, err);
       ctx.reply("❌ No se pudo enviar el audio. Inténtalo más tarde.");
-      console.error("Error al enviar audio:", err);
     } finally {
       fs.unlinkSync(output);
     }
@@ -495,9 +485,10 @@ ${command_list.join("\n")}
         { source: fileStream },
         { caption: "🖼️ Miniatura del video" }
       );
+      logger.ok(`Imagen enviada | chatId: ${ctx.chat?.id}`);
     } catch (err) {
+      logger.error(`Error al enviar imagen | chatId: ${ctx.chat?.id}`, err);
       ctx.reply("❌ No se pudo enviar la imagen.");
-      console.error("Error al enviar imagen:", err);
     } finally {
       fs.unlinkSync(output);
     }

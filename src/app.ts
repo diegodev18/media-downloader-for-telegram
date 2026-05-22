@@ -3,6 +3,8 @@ import { bot } from "@/lib/telegraf-bot";
 import { FormBot } from "@/utils/form-bot";
 import { commands } from "@/consts/commands";
 import { allowChatIds, logRequest, rateLimitDownloads } from "@/lib/middlewares";
+import { logger } from "@/lib/logger";
+import { NODE_ENV, ALLOWED_CHAT_IDS, RATE_LIMIT_MAX, CHANNEL_ID } from "@/config";
 
 bot.use(allowChatIds);
 bot.use(logRequest);
@@ -22,7 +24,7 @@ bot.on(message("text"), async (ctx) => {
 
     await FormBot.sendDownloadedVideo(ctx);
   } catch (err) {
-    console.error("Error in FormBot.download:", err);
+    logger.error("Error inesperado en handler de mensaje:", err);
     ctx.reply(
       "❌ Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
     );
@@ -30,5 +32,9 @@ bot.on(message("text"), async (ctx) => {
 });
 
 bot.launch(() => {
-  console.log("Bot started");
+  logger.info(
+    `Bot iniciado | entorno: ${NODE_ENV} | chats permitidos: ${ALLOWED_CHAT_IDS.size}` +
+    (RATE_LIMIT_MAX ? ` | rate limit: ${RATE_LIMIT_MAX} descargas/h` : "") +
+    (CHANNEL_ID ? ` | canal: ${CHANNEL_ID}` : "")
+  );
 });
