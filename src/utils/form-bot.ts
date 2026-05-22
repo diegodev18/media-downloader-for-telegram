@@ -203,7 +203,7 @@ ${command_list.join("\n")}
               err?.code === "ECONNABORTED" ||
               err?.message?.includes("socket hang up");
             if (!isRetryable || attempt === retries) throw err;
-            logger.warn(`Reintento de subida ${attempt + 1}/${retries} | error: ${err?.code ?? err?.message}`);
+            logger.warn(`Reintento de subida ${attempt + 1}/${retries} | error: ${err?.code ?? err?.message}`, err);
             await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
           }
         }
@@ -241,7 +241,8 @@ ${command_list.join("\n")}
         ctx.reply("❌ No se pudo enviar el video. Inténtalo más tarde.");
       }
       logger.error(
-        `Error al enviar video | id: ${info?.id ?? "—"} | code: ${err?.code ?? "?"} | título: "${info?.title ?? "—"}" | tamaño: ${info?.filesize ? fmtBytes(info.filesize) : "?"} | duración: ${info?.duration ?? "?"}s`
+        `Error al enviar video | id: ${info?.id ?? "—"} | code: ${err?.code ?? "?"} | título: "${info?.title ?? "—"}" | tamaño: ${info?.filesize ? fmtBytes(info.filesize) : "?"} | duración: ${info?.duration ?? "?"}s`,
+        err
       );
       const chatId = ctx.chat?.id;
       if (chatId !== undefined)
