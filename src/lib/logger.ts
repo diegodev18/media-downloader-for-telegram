@@ -1,6 +1,5 @@
 const C = {
   reset: "\x1b[0m",
-  gray: "\x1b[90m",
   red: "\x1b[31m",
   yellow: "\x1b[33m",
   green: "\x1b[32m",
@@ -9,12 +8,8 @@ const C = {
   magenta: "\x1b[35m",
 };
 
-function ts(): string {
-  return new Date().toISOString().replace("T", " ").slice(0, 19);
-}
-
 function prefix(label: string, color: string): string {
-  return `${C.gray}${ts()}${C.reset} ${color}${label}${C.reset}`;
+  return `${color}${label}${C.reset}`;
 }
 
 export const logger = {
