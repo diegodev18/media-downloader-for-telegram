@@ -38,3 +38,6 @@ bot.launch(() => {
     (CHANNEL_ID ? ` | canal: ${CHANNEL_ID}` : "")
   );
 });
+
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
