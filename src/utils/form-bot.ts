@@ -10,6 +10,8 @@ import {
   getPlaylistInfo,
   downloadThumbnail,
   YouTubeCookiesError,
+  compressForUpload,
+  UPLOAD_SIZE_THRESHOLD,
 } from "@/utils/download-utils";
 import { extractUrls } from "@/utils/url-utils";
 import { youtubedl } from "@/lib/ytdlp-client";
@@ -174,7 +176,22 @@ ${command_list.join("\n")}
       return false;
     }
 
-    logger.dl(`Enviando video a Telegram | chatId: ${ctx.chat?.id} | tamaño: ${fmtBytes(actualSize)}`);
+    // Compress if the file exceeds the safe upload threshold (~130 KB/s × 70s = ~9 MB).
+    // ffmpeg re-encodes to a bitrate that targets 6.5 MB, keeping the upload under 50s.
+    let uploadPath = output;
+    if (actualSize > UPLOAD_SIZE_THRESHOLD && info.duration) {
+      try {
+        ctx.reply("🔄 Comprimiendo video para envío...");
+        uploadPath = await compressForUpload(output, info.duration);
+        const compressedSize = fs.statSync(uploadPath).size;
+        logger.dl(`Video comprimido | ${fmtBytes(actualSize)} → ${fmtBytes(compressedSize)} | chatId: ${ctx.chat?.id}`);
+      } catch (compressErr) {
+        logger.error("Error al comprimir, usando archivo original:", compressErr);
+        uploadPath = output;
+      }
+    }
+
+    logger.dl(`Enviando video a Telegram | chatId: ${ctx.chat?.id} | tamaño: ${fmtBytes(fs.statSync(uploadPath).size)}`);
     ctx.reply("📤 Enviando el video...");
     ctx.sendChatAction("upload_video");
 
@@ -219,7 +236,7 @@ ${command_list.join("\n")}
         }
       }
 
-      const fileBuffer = fs.readFileSync(output);
+      const fileBuffer = fs.readFileSync(uploadPath);
 
       const sendWithRetry = async (
         retries = 2
@@ -267,6 +284,9 @@ ${command_list.join("\n")}
       return false;
     } finally {
       fs.unlinkSync(output);
+      if (uploadPath !== output && fs.existsSync(uploadPath)) {
+        fs.unlinkSync(uploadPath);
+      }
     }
   }
 

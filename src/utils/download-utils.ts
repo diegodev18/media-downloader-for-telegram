@@ -1,9 +1,46 @@
 import fs from "fs";
 import path from "path";
+import { exec } from "child_process";
+import { promisify } from "util";
 import { youtubedl } from "@/lib/ytdlp-client";
 import { YTDLP, DESCRIPTION_MAX_LENGTH } from "@/config";
 import type { YtResponse } from "yt-dlp-exec";
 import { logger } from "@/lib/logger";
+
+const execAsync = promisify(exec);
+
+/**
+ * Maximum file size (bytes) that fits within Telegram's ~70s server-side upload
+ * timeout at Railway's observed ~130 KB/s upload rate. Files above this are
+ * re-encoded with ffmpeg before sending.
+ */
+export const UPLOAD_SIZE_THRESHOLD = 7 * 1024 * 1024; // 7 MB
+
+/**
+ * Re-encodes a video with ffmpeg targeting a file size that fits the upload
+ * threshold. Scales down to max 480p and uses 1-pass ABR to hit the target.
+ * Returns the path of the compressed file (caller must clean it up).
+ */
+export async function compressForUpload(
+  inputPath: string,
+  durationSecs: number
+): Promise<string> {
+  const outputPath = inputPath.replace(/(\.\w+)$/, "_c.mp4");
+  // Target 6.5 MB to stay comfortably under the 7 MB threshold
+  const targetKbits = 6.5 * 8 * 1024;
+  const audioKbps = 64;
+  const videoKbps = Math.max(80, Math.floor(targetKbits / durationSecs) - audioKbps);
+
+  await execAsync(
+    `ffmpeg -i "${inputPath}" \
+      -vf "scale='if(gt(iw\\,ih)\\,min(480\\,iw)\\,-2)':'if(gt(iw\\,ih)\\,-2\\,min(480\\,ih))'" \
+      -c:v libx264 -b:v ${videoKbps}k \
+      -c:a aac -b:a ${audioKbps}k \
+      -movflags +faststart -y "${outputPath}"`
+  );
+
+  return outputPath;
+}
 
 /** Error cuando YouTube rechaza la descarga por cookies inválidas o detección de bot. */
 export class YouTubeCookiesError extends Error {
