@@ -147,7 +147,8 @@ ${command_list.join("\n")}`);
     ctx.reply("Descarga exitosa! Preparando para enviar el video...");
 
     const maxSize = 50 * 1024 * 1024;
-    if (info.filesize && info.filesize > maxSize) {
+    const actualSize = fileStats.size;
+    if ((info.filesize ?? actualSize) > maxSize) {
       let directUrl: string | null = null;
       try {
         directUrl = await getDirectUrl(url);
@@ -158,7 +159,7 @@ ${command_list.join("\n")}`);
         "❌ El archivo es demasiado grande para ser enviado por Telegram (más de 50 MB)." +
           (directUrl ? `\n\nEnlace para descargarlo manualmente:\n${directUrl}` : "")
       );
-      console.error(`Archivo ${output} demasiado grande:`, info.filesize);
+      console.error(`Archivo ${output} demasiado grande:`, info.filesize ?? actualSize);
       fs.unlinkSync(output);
       return false;
     }
