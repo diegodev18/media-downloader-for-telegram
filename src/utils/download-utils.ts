@@ -10,11 +10,11 @@ import { logger } from "@/lib/logger";
 const execAsync = promisify(exec);
 
 /**
- * Maximum file size (bytes) that fits within Telegram's ~70s server-side upload
- * timeout at Railway's observed ~130 KB/s upload rate. Files above this are
- * re-encoded with ffmpeg before sending.
+ * Maximum file size (bytes) that fits within Telegram's ~60s server-side upload
+ * timeout at Railway's observed ~90 KB/s upload rate (conservative estimate).
+ * 90 KB/s × 50s = 4.5 MB safe margin. Files above this are re-encoded.
  */
-export const UPLOAD_SIZE_THRESHOLD = 7 * 1024 * 1024; // 7 MB
+export const UPLOAD_SIZE_THRESHOLD = 4.5 * 1024 * 1024; // 4.5 MB
 
 /**
  * Re-encodes a video with ffmpeg targeting a file size that fits the upload
@@ -26,8 +26,8 @@ export async function compressForUpload(
   durationSecs: number
 ): Promise<string> {
   const outputPath = inputPath.replace(/(\.\w+)$/, "_c.mp4");
-  // Target 6.5 MB to stay comfortably under the 7 MB threshold
-  const targetKbits = 6.5 * 8 * 1024;
+  // Target 4 MB to stay comfortably under the 4.5 MB threshold
+  const targetKbits = 4 * 8 * 1024;
   const audioKbps = 64;
   const videoKbps = Math.max(80, Math.floor(targetKbits / durationSecs) - audioKbps);
 

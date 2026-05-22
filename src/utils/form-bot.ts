@@ -222,20 +222,6 @@ ${command_list.join("\n")}
     };
 
     try {
-      // Try URL-based send first: Telegram downloads from CDN, no upload from bot.
-      // Falls back to buffer upload if the CDN URL is unavailable or Telegram rejects it.
-      const directUrl = await getDirectUrl(url).catch(() => null);
-      if (directUrl) {
-        try {
-          logger.dl(`Enviando por URL directa | chatId: ${ctx.chat?.id}`);
-          const repliedData = await ctx.replyWithVideo(directUrl, { caption });
-          await handleSuccess(repliedData);
-          return true;
-        } catch (urlErr: any) {
-          logger.warn(`URL directa falló, usando buffer | error: ${urlErr?.message ?? urlErr?.code}`, urlErr);
-        }
-      }
-
       const fileBuffer = fs.readFileSync(uploadPath);
 
       const sendWithRetry = async (
