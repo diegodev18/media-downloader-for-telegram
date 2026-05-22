@@ -13,7 +13,7 @@ function trimToWindow(timestamps: number[], windowMs: number): number[] {
 export const allowChatIds = async (ctx: TelegrafContext, next: () => Promise<void>) => {
   const chatId = ctx.chat?.id;
   if (chatId === undefined || !ALLOWED_CHAT_IDS.has(chatId)) {
-    await ctx.reply("No estás autorizado para usar este bot.");
+    await ctx.reply("🚫 No estás autorizado para usar este bot.");
     return;
   }
   return next();
@@ -62,7 +62,7 @@ export const rateLimitDownloads = async (
 
   if (timestamps.length >= RATE_LIMIT_MAX) {
     await ctx.reply(
-      `❌ Has alcanzado el límite de ${RATE_LIMIT_MAX} descargas en esta ventana de tiempo. Vuelve a intentarlo más tarde.`
+      `⏳ Has alcanzado el límite de ${RATE_LIMIT_MAX} descargas en esta ventana de tiempo. Vuelve a intentarlo más tarde.`
     );
     return;
   }

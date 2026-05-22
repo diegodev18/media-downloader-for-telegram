@@ -24,7 +24,7 @@ bot.on(message("text"), async (ctx) => {
   } catch (err) {
     console.error("Error in FormBot.download:", err);
     ctx.reply(
-      "❌ Ocurrió un error inesperado al procesar tu solicitud. Por favor, inténtalo de nuevo más tarde."
+      "❌ Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
     );
   }
 });

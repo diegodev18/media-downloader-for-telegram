@@ -63,9 +63,13 @@ export class FormBot {
   static start(ctx: Context) {
     const username = ctx.from?.first_name;
     ctx.reply(`\
-Bienvenido${username && ` ${username}`}!
+🎉 ¡Bienvenido${username && `, ${username}`}!
 
-Soy un bot de Telegram y mi tarea es ayudarte a descargar archivos multimedia desde las redes sociales que desees. Tengo limite de 50 MB para enviar multimedia, asi que intenta no pasarme enlaces de videos muy largos.`);
+Soy tu asistente de descargas multimedia 📥. Puedo descargar videos, audios e imágenes desde múltiples plataformas sociales.
+
+⚠️ Límite de tamaño: 50 MB por archivo.
+
+Usa /help para ver todos los comandos disponibles.`);
   }
 
   static help(ctx: Context) {
@@ -73,8 +77,10 @@ Soy un bot de Telegram y mi tarea es ayudarte a descargar archivos multimedia de
       ([command, { description }]) => `/${command} - ${description}`
     );
     ctx.reply(`\
-Aquí tienes una lista de comandos que puedes usar:
-${command_list.join("\n")}`);
+📚 Comandos disponibles:
+${command_list.join("\n")}
+
+💡 También puedes enviarme directamente un enlace para descargarlo.`);
   }
 
   /**
@@ -98,7 +104,7 @@ ${command_list.join("\n")}`);
     const videoId = getVideoIdFromUrl(url);
     const fromUsername = ctx.from.username;
 
-    ctx.reply(`Descargando video...\nDesde: ${domain}\nVideoId: ${videoId}`);
+    ctx.reply(`⬇️ Descargando video...\n🌐 Plataforma: ${domain}\n🔑 ID: ${videoId}`);
 
     let videoData;
     try {
@@ -112,7 +118,7 @@ ${command_list.join("\n")}`);
       }
       console.error("Error en downloadVideo (excepción):", url, err);
       ctx.reply(
-        "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+        "❌ No se pudo descargar el video. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
       return false;
     }
@@ -120,7 +126,7 @@ ${command_list.join("\n")}`);
     if (!videoData) {
       console.error("Error al descargar el video (downloadVideo devolvió null):", url);
       ctx.reply(
-        "❌ Error al descargar el video. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+        "❌ No se pudo descargar el video. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
       return false;
     }
@@ -130,7 +136,7 @@ ${command_list.join("\n")}`);
     if (!fs.existsSync(output)) {
       console.error("Downloaded file does not exist:", output, "url:", url);
       ctx.reply(
-        "❌ Error al descargar el video: el archivo no se encontró después de la descarga."
+        "❌ Error interno: el archivo no se encontró tras la descarga."
       );
       return false;
     }
@@ -138,13 +144,13 @@ ${command_list.join("\n")}`);
     if (fileStats.size === 0) {
       console.error("Downloaded file is empty:", output, "url:", url);
       ctx.reply(
-        "❌ Error al descargar el video: el archivo descargado está vacío."
+        "❌ Error interno: el archivo descargado está vacío."
       );
       fs.unlinkSync(output);
       return false;
     }
 
-    ctx.reply("Descarga exitosa! Preparando para enviar el video...");
+    ctx.reply("✅ ¡Descarga completada! Preparando el envío...");
 
     const maxSize = 50 * 1024 * 1024;
     const actualSize = fileStats.size;
@@ -156,15 +162,15 @@ ${command_list.join("\n")}`);
         // ignorar
       }
       ctx.reply(
-        "❌ El archivo es demasiado grande para ser enviado por Telegram (más de 50 MB)." +
-          (directUrl ? `\n\nEnlace para descargarlo manualmente:\n${directUrl}` : "")
+        "❌ El archivo pesa más de 50 MB y no puede enviarse por Telegram." +
+          (directUrl ? `\n\n📎 Descárgalo manualmente:\n${directUrl}` : "")
       );
       console.error(`Archivo ${output} demasiado grande:`, info.filesize ?? actualSize);
       fs.unlinkSync(output);
       return false;
     }
 
-    ctx.reply("Enviando el video...");
+    ctx.reply("📤 Enviando el video...");
     ctx.sendChatAction("upload_video");
 
     try {
@@ -179,9 +185,9 @@ ${command_list.join("\n")}`);
             return await ctx.replyWithVideo(
               { source: fileStream },
               {
-                caption: `Listo, ten el video que me pediste${
-                  fromUsername ? ` @${fromUsername}` : ` ${ctx.from.first_name}`
-                }!`,
+                caption: `🎬 ¡Aquí tienes tu video${
+                  fromUsername ? `, @${fromUsername}` : `, ${ctx.from.first_name}`
+                }! ✨`,
               }
             );
           } catch (err: any) {
@@ -230,10 +236,10 @@ ${command_list.join("\n")}`);
     } catch (err: any) {
       if (err?.code === 413) {
         ctx.reply(
-          "❌ El archivo es demasiado grande para ser enviado por Telegram (más de 50 MB)."
+          "❌ El archivo pesa más de 50 MB y no puede enviarse por Telegram."
         );
       } else {
-        ctx.reply("❌ Error al enviar el video.");
+        ctx.reply("❌ No se pudo enviar el video. Inténtalo más tarde.");
       }
       console.error(
         `Error al enviar el video ${info?.id ?? "(sin id)"}:`,
@@ -269,7 +275,7 @@ ${command_list.join("\n")}`);
 
     const urls = extractUrls(messageText);
     if (urls.length === 0) {
-      ctx.reply("❌ No se encontró ninguna URL en tu mensaje. Envía un enlace de video.");
+      ctx.reply("❌ No encontré ningún enlace en tu mensaje. Envíame un link de video.");
       return;
     }
 
@@ -279,13 +285,13 @@ ${command_list.join("\n")}`);
       return;
     }
 
-    ctx.reply(`Encontradas ${urls.length} URLs. Procesando en secuencia...`);
+    ctx.reply(`🔍 Encontradas ${urls.length} URLs. Procesando en secuencia...`);
     let sent = 0;
     for (const url of urls) {
       const ok = await FormBot.sendOneVideo(ctx, url);
       if (ok) sent++;
     }
-    ctx.reply(`Listo. Enviados ${sent} de ${urls.length} vídeos.`);
+    ctx.reply(`✅ Listo. Enviados ${sent} de ${urls.length} videos.`);
   }
 
   static async info(ctx: Context) {
@@ -297,13 +303,11 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("typing");
 
     if (!url) {
-      ctx.reply(
-        "❌ Por favor, proporciona un enlace de video para obtener información. Uso: /info <enlace>"
-      );
+      ctx.reply("❌ Falta el enlace. Uso: /info <enlace>");
       return;
     }
 
-    ctx.reply("Obteniendo información del video...");
+    ctx.reply("🔍 Obteniendo información del video...");
 
     const cookiesOpt = fs.existsSync(YTDLP_CONFIG.COOKIES_FILE)
       ? { cookies: YTDLP_CONFIG.COOKIES_FILE }
@@ -316,11 +320,11 @@ ${command_list.join("\n")}`);
     })
       .then((info) => {
         ctx.reply(
-          `Información del video:\n${getDataLines(info, null).join("\n")}`
+          `ℹ️ Información del video:\n${getDataLines(info, null).join("\n")}`
         );
       })
       .catch((err) => {
-        ctx.reply(`❌ Error al obtener información del video`);
+        ctx.reply("❌ No se pudo obtener información. Verifica que el enlace sea válido.");
         console.error("/info", err.message);
       });
   }
@@ -333,13 +337,11 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("typing");
 
     if (!url) {
-      ctx.reply(
-        "❌ Proporciona un enlace para extraer el audio. Uso: /audio <enlace>"
-      );
+      ctx.reply("❌ Falta el enlace. Uso: /audio <enlace>");
       return;
     }
 
-    ctx.reply("Descargando audio...");
+    ctx.reply("🎵 Descargando audio...");
 
     let audioData;
     try {
@@ -351,14 +353,14 @@ ${command_list.join("\n")}`);
       }
       console.error("Error en downloadAudio:", url, err);
       ctx.reply(
-        "❌ Error al descargar el audio. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+        "❌ No se pudo descargar el audio. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
       return;
     }
 
     if (!audioData) {
       ctx.reply(
-        "❌ Error al descargar el audio. Asegúrate de que el enlace es correcto y vuelve a intentarlo."
+        "❌ No se pudo descargar el audio. Verifica que el enlace sea válido e inténtalo de nuevo."
       );
       return;
     }
@@ -369,7 +371,7 @@ ${command_list.join("\n")}`);
 
     if (size > maxSize) {
       ctx.reply(
-        "❌ El audio es demasiado grande para enviar por Telegram (más de 50 MB)."
+        "❌ El audio pesa más de 50 MB y no puede enviarse por Telegram."
       );
       fs.unlinkSync(output);
       return;
@@ -381,11 +383,11 @@ ${command_list.join("\n")}`);
       await ctx.replyWithDocument(
         { source: fileStream, filename: `${info.title ?? "audio"}.mp3` },
         {
-          caption: `Audio listo${ctx.from?.username ? ` @${ctx.from.username}` : ""}.`,
+          caption: `🎵 ¡Audio listo${ctx.from?.username ? `, @${ctx.from.username}` : ""}!`,
         }
       );
     } catch (err) {
-      ctx.reply("❌ Error al enviar el audio.");
+      ctx.reply("❌ No se pudo enviar el audio. Inténtalo más tarde.");
       console.error("Error al enviar audio:", err);
     } finally {
       fs.unlinkSync(output);
@@ -400,18 +402,16 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("typing");
 
     if (!url) {
-      ctx.reply(
-        "❌ Proporciona un enlace de playlist. Uso: /playlist <enlace>"
-      );
+      ctx.reply("❌ Falta el enlace. Uso: /playlist <enlace>");
       return;
     }
 
-    ctx.reply("Obteniendo información de la playlist...");
+    ctx.reply("📋 Obteniendo información de la playlist...");
 
     const playlist = await getPlaylistInfo(url);
     if (!playlist) {
       ctx.reply(
-        "❌ No se pudo obtener la playlist o el enlace no es una playlist."
+        "❌ No se pudo obtener la playlist. Verifica que el enlace sea una playlist válida."
       );
       return;
     }
@@ -445,17 +445,15 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("typing");
 
     if (!url) {
-      ctx.reply(
-        "❌ Proporciona un enlace para listar formatos. Uso: /format <enlace>"
-      );
+      ctx.reply("❌ Falta el enlace. Uso: /format <enlace>");
       return;
     }
 
-    ctx.reply("Obteniendo formatos disponibles...");
+    ctx.reply("🎞️ Obteniendo formatos disponibles...");
 
     const out = await listFormats(url);
     if (!out) {
-      ctx.reply("❌ No se pudo obtener la lista de formatos para ese enlace.");
+      ctx.reply("❌ No se pudo obtener los formatos para ese enlace.");
       return;
     }
 
@@ -464,7 +462,7 @@ ${command_list.join("\n")}`);
       out.length > maxLen
         ? `(Primeros ${maxLen} caracteres)\n\n${out.slice(0, maxLen)}...`
         : out;
-    ctx.reply(`Formatos disponibles:\n\n<pre>${textToSend}</pre>`, {
+    ctx.reply(`🎞️ Formatos disponibles:\n\n<pre>${textToSend}</pre>`, {
       parse_mode: "HTML",
     });
   }
@@ -477,18 +475,16 @@ ${command_list.join("\n")}`);
     ctx.sendChatAction("typing");
 
     if (!url) {
-      ctx.reply(
-        "❌ Proporciona un enlace para obtener la imagen/miniatura. Uso: /image <enlace>"
-      );
+      ctx.reply("❌ Falta el enlace. Uso: /image <enlace>");
       return;
     }
 
-    ctx.reply("Descargando imagen o miniatura...");
+    ctx.reply("🖼️ Descargando imagen/miniatura...");
 
     const output = await downloadThumbnail(url);
     if (!output) {
       ctx.reply(
-        "❌ No se pudo obtener la imagen. Asegúrate de que el enlace es correcto."
+        "❌ No se pudo obtener la imagen. Verifica que el enlace sea correcto."
       );
       return;
     }
@@ -497,10 +493,10 @@ ${command_list.join("\n")}`);
       const fileStream = fs.createReadStream(output);
       await ctx.replyWithPhoto(
         { source: fileStream },
-        { caption: "Imagen / miniatura del enlace." }
+        { caption: "🖼️ Miniatura del video" }
       );
     } catch (err) {
-      ctx.reply("❌ Error al enviar la imagen.");
+      ctx.reply("❌ No se pudo enviar la imagen.");
       console.error("Error al enviar imagen:", err);
     } finally {
       fs.unlinkSync(output);
@@ -513,7 +509,7 @@ ${command_list.join("\n")}`);
 
     const adminIds = ADMIN_CHAT_IDS ?? ALLOWED_CHAT_IDS;
     if (adminIds !== null && !adminIds.has(chatId)) {
-      ctx.reply("❌ No tienes permiso para ver estadísticas.");
+      ctx.reply("❌ No tienes permiso para ver las estadísticas.");
       return;
     }
 
@@ -536,7 +532,7 @@ ${command_list.join("\n")}`);
         : "  (ninguno)";
 
     ctx.reply(
-      `📊 Estadísticas\n\nDescargas hoy: ${s.downloadsToday}\n\nPor chat:\n${byChatStr}\n\nÚltimos errores (máx. 5):\n${errorsStr}`
+      `📊 Estadísticas\n\n📥 Descargas hoy: ${s.downloadsToday}\n\n💬 Por chat:\n${byChatStr}\n\n⚠️ Últimos errores (máx. 5):\n${errorsStr}`
     );
   }
 }
